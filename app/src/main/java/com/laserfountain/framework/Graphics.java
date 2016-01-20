@@ -4,7 +4,8 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 
-import java.util.List;
+import com.laserfountain.circly.Button;
+import com.laserfountain.circly.ImageButton;
 
 public interface Graphics {
 
@@ -41,13 +42,19 @@ public interface Graphics {
 
     void drawImage(Image Image, int x, int y);
 
-    void drawString(String text, int x, int y);
+    void drawImageButton(ImageButton button, int yOffset, int overlay);
+
+    void drawString(String text, double x, double y);
 
     void drawString(String text, double x, double y, Paint painter);
 
     void drawStringCentered(String text);
 
     void drawStringCentered(String string, Paint largePainter);
+
+    void drawButton(String text, int x0, int y0, int x1, int y1);
+
+    void drawButton(Button b);
 
     int getWidth();
 

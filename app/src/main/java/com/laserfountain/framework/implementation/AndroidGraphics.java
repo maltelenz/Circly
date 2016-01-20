@@ -3,7 +3,6 @@ package com.laserfountain.framework.implementation;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Path;
@@ -11,7 +10,9 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 
+import com.laserfountain.circly.Button;
 import com.laserfountain.circly.ColorPalette;
+import com.laserfountain.circly.ImageButton;
 import com.laserfountain.framework.Graphics;
 import com.laserfountain.framework.Image;
 
@@ -22,7 +23,6 @@ public class AndroidGraphics implements Graphics {
     Paint paint;
     Paint darkTextPaint;
     Paint lightTextPaint;
-    Paint circleNrPaint;
 
     Rect srcRect = new Rect();
     Rect dstRect = new Rect();
@@ -51,7 +51,6 @@ public class AndroidGraphics implements Graphics {
         this.lightTextPaint = new Paint();
         lightTextPaint.set(darkTextPaint);
         lightTextPaint.setColor(ColorPalette.lightText);
-
     }
 
     @Override
@@ -145,7 +144,7 @@ public class AndroidGraphics implements Graphics {
     }
 
     @Override
-    public void drawString(String text, int x, int y) {
+    public void drawString(String text, double x, double y) {
         drawString(text, x, y, darkTextPaint);
     }
 
@@ -161,7 +160,21 @@ public class AndroidGraphics implements Graphics {
 
     @Override
     public void drawStringCentered(String text, Paint painter) {
-        drawString(text, getWidth() / 2, getHeight() / 2, painter);
+        drawString(text, getWidth() / 2, getHeight() / 2.5, painter);
+    }
+
+    @Override
+    public void drawButton(String text, int x0, int y0, int x1, int y1) {
+        Paint rectanglePainter = new Paint();
+        rectanglePainter.setColor(ColorPalette.button);
+        rectanglePainter.setShadowLayer(scale(10.0f), scale(2.0f), scale(2.0f), ColorPalette.buttonShadow);
+        canvas.drawRect(x0, y0, x1, y1, rectanglePainter);
+        drawString(text, x0 + (x1 - x0) / 2, y0 + (y1 - y0) / 2, lightTextPaint);
+    }
+
+    @Override
+    public void drawButton(Button b) {
+        drawButton(b.text, b.x0, b.y0, b.x1, b.y1);
     }
 
     public void drawImage(Image Image, int x, int y, int srcX, int srcY, int srcWidth, int srcHeight) {
@@ -181,6 +194,24 @@ public class AndroidGraphics implements Graphics {
     @Override
     public void drawImage(Image Image, int x, int y) {
         canvas.drawBitmap(((AndroidImage) Image).bitmap, x, y, null);
+    }
+
+    @Override
+    public void drawImageButton(ImageButton button, int yOffset, int overlay) {
+        Bitmap bitmap = button.img.bitmap;
+
+        dstRect.left = button.x0;
+        dstRect.top = button.y0 + yOffset;
+        dstRect.right = button.x1;
+        dstRect.bottom = button.y1 + yOffset;
+
+        canvas.drawBitmap(bitmap, null, dstRect, null);
+        drawString(
+                Integer.toString(overlay),
+                button.x0 + (button.x1 - button.x0) / 2,
+                button.y0 + (button.y1 - button.y0) / 2 + yOffset,
+                lightTextPaint
+        );
     }
 
     @Override
