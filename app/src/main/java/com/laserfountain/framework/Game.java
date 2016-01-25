@@ -2,7 +2,10 @@ package com.laserfountain.framework;
 
 import android.content.Context;
 
+import com.laserfountain.circly.Building;
 import com.laserfountain.circly.Screen;
+
+import java.util.ArrayList;
 
 public interface Game {
 
@@ -28,9 +31,16 @@ public interface Game {
 
     float scale(float in);
 
+    void updatePoints(float points);
+
+    ArrayList<Building> getBuildings();
+
+    float getPoints();
+
     /**
      * Locks the screen in portrait mode.
      */
     void lockOrientationPortrait();
 
+    void updateBuildings(ArrayList<Building> buildings);
 }

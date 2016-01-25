@@ -11,11 +11,14 @@ import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.laserfountain.circly.Building;
 import com.laserfountain.framework.Game;
 import com.laserfountain.framework.Graphics;
 import com.laserfountain.framework.Input;
 import com.laserfountain.circly.R;
 import com.laserfountain.circly.Screen;
+
+import java.util.ArrayList;
 
 public abstract class AndroidGame extends Activity implements Game {
     AndroidFastRenderView renderView;
@@ -147,5 +150,39 @@ public abstract class AndroidGame extends Activity implements Game {
         Log.d("FB Width", Integer.toString(getFrameBufferWidth()));
         Log.d("FB Height", Integer.toString(getFrameBufferHeight()));
         return Bitmap.createBitmap(getFrameBufferWidth(), getFrameBufferHeight(), Config.RGB_565);
+    }
+
+    @Override
+    public void updatePoints(float points) {
+        SharedPreferences preferences = getLevelPreferences();
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putFloat(getString(R.string.points_achieved), points);
+        editor.commit();
+    }
+
+    @Override
+    public void updateBuildings(ArrayList<Building> buildings) {
+        SharedPreferences preferences = getLevelPreferences();
+        SharedPreferences.Editor editor = preferences.edit();
+        for (Building b : buildings) {
+            editor.putInt(b.getTypeString(), b.getOwned());
+        }
+        editor.commit();
+    }
+
+    @Override
+    public ArrayList<Building> getBuildings() {
+        SharedPreferences preferences = getLevelPreferences();
+        ArrayList<Building> buildings = new ArrayList<>();
+        for (Building.BuildingType btype : Building.BuildingType.values()) {
+            buildings.add(new Building(btype, preferences.getInt(btype.name(), 0)));
+        }
+        return buildings;
+    }
+
+    @Override
+    public float getPoints() {
+        SharedPreferences preferences = getLevelPreferences();
+        return preferences.getFloat(getString(R.string.points_achieved), 0);
     }
 }

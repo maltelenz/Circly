@@ -14,13 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainScreen extends Screen {
-    private final Context context;
-
     private int SMALL_CIRCLE_RADIUS;
     private int SCREEN_WIDTH;
     private int SCREEN_HEIGHT;
     private int CIRCLE_RADIUS;
     private static final float SHRINK_INTERVAL = 30;
+    private static final float SAVE_INTERVAL = 500;
 
     private final Button showBuildingsButton;
     private final Button hideBuildingsButton;
@@ -32,10 +31,11 @@ public class MainScreen extends Screen {
 
     private int touches;
     private int multiplier;
-    private double clicks;
+    private float clicks;
 
     private boolean buildingsShown;
     private float timeUntilShrink;
+    private float timeUntilSave;
     private double extra;
 
     private final int godModeMultiplier = 1;
@@ -49,11 +49,11 @@ public class MainScreen extends Screen {
         SMALL_CIRCLE_RADIUS = game.scaleX(65);
         touches = 1;
         multiplier = 1;
-        clicks = 0;
+        clicks = game.getPoints();
 
-        buildings = new ArrayList<>();
-        buildings.add(new Building(Building.BuildingType.FlatSeat));
-        buildings.add(new Building(Building.BuildingType.AngledSeat));
+        buildings = game.getBuildings();
+
+        updateExtra();
 
         buildingsShown = false;
 
@@ -63,9 +63,9 @@ public class MainScreen extends Screen {
 
         showBuildingsButton = new Button("\u2303",
                 game.getGraphics().getWidth() / 2 - buildingsButtonWidth / 2,
-                game.getGraphics().getHeight() - buildingsButtonHeight - buildingsHeight / 2,
+                game.getGraphics().getHeight() - buildingsButtonHeight,
                 game.getGraphics().getWidth() / 2 + buildingsButtonWidth / 2,
-                game.getGraphics().getHeight() - buildingsHeight / 2);
+                game.getGraphics().getHeight());
 
         hideBuildingsButton = new Button("\u2304",
                 game.getGraphics().getWidth() / 2 - buildingsButtonWidth / 2,
@@ -73,7 +73,6 @@ public class MainScreen extends Screen {
                 game.getGraphics().getWidth() / 2 + buildingsButtonWidth / 2,
                 game.getGraphics().getHeight() - buildingsHeight);
 
-        this.context = context;
         AndroidImage flatSeatImage = new AndroidImage(
                 BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_airline_seat_flat_black_48dp),
                 Graphics.ImageFormat.RGB565
@@ -153,6 +152,13 @@ public class MainScreen extends Screen {
             }
         }
 
+        timeUntilSave -= deltaTime;
+        if (timeUntilSave < 0) {
+            timeUntilSave = SAVE_INTERVAL;
+            game.updatePoints(clicks);
+            game.updateBuildings(buildings);
+        }
+
         clicks += extra * deltaTime;
 
     }
@@ -218,9 +224,8 @@ public class MainScreen extends Screen {
             g.drawImageButton(angledSeatBuildingButton, 0, buildings.get(1).getOwned());
         } else {
             g.drawButton(showBuildingsButton);
-            g.drawRectNoFill(0, SCREEN_HEIGHT - buildingsHeight / 2, SCREEN_WIDTH, buildingsHeight, ColorPalette.laser);
-            g.drawImageButton(flatSeatBuildingButton, buildingsHeight / 2, buildings.get(0).getOwned());
-            g.drawImageButton(angledSeatBuildingButton, buildingsHeight / 2, buildings.get(1).getOwned());
+            g.drawImageButton(flatSeatBuildingButton, buildingsHeight, buildings.get(0).getOwned());
+            g.drawImageButton(angledSeatBuildingButton, buildingsHeight, buildings.get(1).getOwned());
         }
     }
 

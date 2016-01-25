@@ -1,30 +1,37 @@
 package com.laserfountain.circly;
 
 public class Building {
-    enum BuildingType {
+    public enum BuildingType {
         FlatSeat,
         AngledSeat
     };
 
+    private BuildingType btype;
     private int owned;
     private double effect;
     private int cost;
 
     public Building(BuildingType btype) {
         owned = 0;
+        this.btype = btype;
         switch (btype) {
             case FlatSeat:
                 effect = 0.001;
                 cost = 500;
                 break;
             case AngledSeat:
-                effect = 0.01;
+                effect = 0.03;
                 cost = 5000;
                 break;
         }
     }
 
-    public double buy(double currency) {
+    public Building(BuildingType btype, int owned) {
+        this(btype);
+        this.owned = owned;
+    }
+
+    public float buy(float currency) {
         if (currency > cost) {
             owned++;
             return currency - cost;
@@ -42,5 +49,9 @@ public class Building {
 
     public int getCost() {
         return cost;
+    }
+
+    public String getTypeString() {
+        return btype.name();
     }
 }
