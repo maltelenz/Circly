@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Path;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
@@ -15,6 +16,9 @@ import com.laserfountain.circly.ColorPalette;
 import com.laserfountain.circly.ImageButton;
 import com.laserfountain.framework.Graphics;
 import com.laserfountain.framework.Image;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AndroidGraphics implements Graphics {
     AssetManager assets;
@@ -135,6 +139,28 @@ public class AndroidGraphics implements Graphics {
         rectanglePainter.setStyle(Style.FILL);
         rectanglePainter.setShadowLayer(scale(10.0f), scale(2.0f), scale(2.0f), ColorPalette.rectangleShadow);
         canvas.drawRect(x, y, x + width - 1, y + height - 1, rectanglePainter);
+    }
+
+    @Override
+    public void drawTriangle(double x, double y, double radius, Paint paint, float rotation) {
+        double d = Math.sqrt(3) * radius / 2;
+        double c = 3 * radius / 2;
+        List<Point> points = new ArrayList<>();
+        points.add(new Point((int) Math.round(x), (int) Math.round(y - radius)));
+        points.add(new Point((int) Math.round(x + d), (int) Math.round(y - radius + c)));
+        points.add(new Point((int) Math.round(x - d), (int) Math.round(y - radius + c)));
+
+        Path path = new Path();
+        path.moveTo(points.get(0).x, points.get(0).y);
+        path.lineTo(points.get(1).x, points.get(1).y);
+        path.lineTo(points.get(2).x, points.get(2).y);
+        path.lineTo(points.get(0).x, points.get(0).y);
+        path.close();
+
+        canvas.save();
+        canvas.rotate(rotation, (float) x, (float) y);
+        canvas.drawPath(path, paint);
+        canvas.restore();
     }
 
     @Override

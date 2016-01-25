@@ -3,6 +3,7 @@ package com.laserfountain.circly;
 import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.graphics.Paint;
+import android.graphics.RectF;
 
 import com.laserfountain.framework.Game;
 import com.laserfountain.framework.Graphics;
@@ -14,11 +15,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainScreen extends Screen {
+    private static final int MAX_TOUCHES = 360;
+    private static final int TOUCH_DIFF = 8;
     private int SMALL_CIRCLE_RADIUS;
     private int SCREEN_WIDTH;
     private int SCREEN_HEIGHT;
     private int CIRCLE_RADIUS;
-    private static final float SHRINK_INTERVAL = 30;
+    private static final float SHRINK_INTERVAL = 50;
     private static final float SAVE_INTERVAL = 500;
 
     private final Button showBuildingsButton;
@@ -36,9 +39,13 @@ public class MainScreen extends Screen {
     private boolean buildingsShown;
     private float timeUntilShrink;
     private float timeUntilSave;
+    private float rotation;
     private double extra;
 
     private final int godModeMultiplier = 1;
+
+    Paint arcPainter;
+    private final Paint circlePainter;
 
     public MainScreen(Game game, Context context) {
         super(game);
@@ -93,6 +100,16 @@ public class MainScreen extends Screen {
                 buildingsHeight, SCREEN_HEIGHT - buildingsHeight, 2 * buildingsHeight, SCREEN_HEIGHT
         );
 
+
+        arcPainter = new Paint();
+        arcPainter.setColor(ColorPalette.circleGreen);
+        arcPainter.setStyle(Paint.Style.STROKE);
+        arcPainter.setStrokeWidth(10);
+        arcPainter.setAntiAlias(true);
+
+        circlePainter = new Paint();
+        circlePainter.set(arcPainter);
+        circlePainter.setStyle(Paint.Style.FILL);
     }
 
     @Override
@@ -128,13 +145,13 @@ public class MainScreen extends Screen {
                 }
 
                 clicks += multiplier * godModeMultiplier;
-                if (touches == 12) {
+                if (touches >= MAX_TOUCHES) {
                     if (multiplier != 5) {
                         multiplier++;
-                        touches = 1;
+                        touches = 0;
                     }
                 } else {
-                    touches++;
+                    touches += TOUCH_DIFF;
                 }
             }
         }
@@ -142,13 +159,13 @@ public class MainScreen extends Screen {
         timeUntilShrink -= deltaTime;
         if (timeUntilShrink < 0) {
             timeUntilShrink = SHRINK_INTERVAL;
-            if (touches == 1) {
+            if (touches <= 0) {
                 if (multiplier != 1) {
-                    touches = 12;
+                    touches = MAX_TOUCHES;
                     multiplier = Math.max(multiplier - 1, 1);
                 }
             } else {
-                touches--;
+                touches = Math.max(touches - TOUCH_DIFF, 0);
             }
         }
 
@@ -170,56 +187,61 @@ public class MainScreen extends Screen {
     @Override
     public void paint(float deltaTime) {
         drawGame(deltaTime);
-
-        drawGameProgressOverlay(false, false);
     }
 
     private void drawGame(float deltaTime) {
         Graphics g = game.getGraphics();
         g.clearScreen(ColorPalette.background);
 
-        int intclicks = (int)Math.round(clicks);
-        g.drawString(Integer.toString(intclicks), SCREEN_WIDTH/2, SCREEN_HEIGHT / 10);
+        int intclicks = Math.round(clicks);
+        g.drawString(Integer.toString(intclicks), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 10);
         DecimalFormat df = new DecimalFormat("#.##");
-        g.drawString(df.format(extra * 100) + "/s", SCREEN_WIDTH/2, SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + SMALL_CIRCLE_RADIUS * 3);
+        g.drawString(df.format(extra * 100) + "/s", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + SMALL_CIRCLE_RADIUS * 3);
 
-        Paint arcPainter = new Paint();
-        arcPainter.setColor(ColorPalette.circleGreen);
-        arcPainter.setStyle(Paint.Style.FILL);
-        arcPainter.setAntiAlias(true);
-        g.drawCircle(
+        rotation = (rotation + ((float) touches) / MAX_TOUCHES * deltaTime * 8) % 360;
+
+        switch (multiplier) {
+            case 1:
+                circlePainter.setColor(ColorPalette.circlePurple);
+                arcPainter.setColor(ColorPalette.circleRed);
+                break;
+            case 2:
+                circlePainter.setColor(ColorPalette.circleRed);
+                arcPainter.setColor(ColorPalette.circleOrange);
+                break;
+            case 3:
+                circlePainter.setColor(ColorPalette.circleOrange);
+                arcPainter.setColor(ColorPalette.circleYellow);
+                break;
+            case 4:
+                circlePainter.setColor(ColorPalette.circleYellow);
+                arcPainter.setColor(ColorPalette.circleTeal);
+                break;
+            case 5:
+                circlePainter.setColor(ColorPalette.circleTeal);
+                arcPainter.setColor(ColorPalette.circleTeal);
+                break;
+        }
+
+        g.drawTriangle(
                 SCREEN_WIDTH / 2,
                 SCREEN_HEIGHT / 2.5,
                 CIRCLE_RADIUS,
-                arcPainter
+                circlePainter,
+                rotation
         );
 
         g.drawStringCentered("+" + Integer.toString(multiplier));
 
-        switch (multiplier) {
-            case 1:
-                arcPainter.setColor(ColorPalette.circlePurple);
-                break;
-            case 2:
-                arcPainter.setColor(ColorPalette.circleRed);
-                break;
-            case 3:
-                arcPainter.setColor(ColorPalette.circleOrange);
-                break;
-            case 4:
-                arcPainter.setColor(ColorPalette.circleYellow);
-                break;
-            case 5:
-                arcPainter.setColor(ColorPalette.circleTeal);
-                break;
-        }
-        for (int i = 0; i < touches; i++) {
-            g.drawCircle(
-                    SCREEN_WIDTH / 2 + (CIRCLE_RADIUS + SMALL_CIRCLE_RADIUS * 1.2) * Math.cos(i * Math.PI/6),
-                    SCREEN_HEIGHT / 2.5 + (CIRCLE_RADIUS + SMALL_CIRCLE_RADIUS * 1.2) * Math.sin(i * Math.PI/6),
-                    SMALL_CIRCLE_RADIUS,
-                    arcPainter);
-        }
+        g.drawArc(
+            new RectF(
+                    SCREEN_WIDTH / 2 - CIRCLE_RADIUS - SMALL_CIRCLE_RADIUS,
+                    (int) Math.round(SCREEN_HEIGHT / 2.5 - CIRCLE_RADIUS - SMALL_CIRCLE_RADIUS),
+                    SCREEN_WIDTH / 2 + CIRCLE_RADIUS + SMALL_CIRCLE_RADIUS,
+                    (int) Math.round(SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + SMALL_CIRCLE_RADIUS)
+                    ),
+                ((float) touches) / MAX_TOUCHES,
+            arcPainter);
 
         if (buildingsShown) {
             g.drawButton(hideBuildingsButton);

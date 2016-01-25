@@ -60,6 +60,8 @@ public interface Graphics {
 
     int getHeight();
 
+    void drawTriangle(double x, double y, double radius, Paint paint, float rotation);
+
     void drawARGB(int i, int j, int k, int l);
 
     void drawCircle(double x, double y, float f, Paint painter);
