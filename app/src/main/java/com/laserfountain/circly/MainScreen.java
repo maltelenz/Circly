@@ -155,12 +155,16 @@ public class MainScreen extends Screen {
         timeUntilSave -= deltaTime;
         if (timeUntilSave < 0) {
             timeUntilSave = SAVE_INTERVAL;
-            game.updatePoints(clicks);
-            game.updateBuildings(buildings);
+            saveGame();
         }
 
         clicks += extra * deltaTime;
 
+    }
+
+    private void saveGame() {
+        game.updatePoints(clicks);
+        game.updateBuildings(buildings);
     }
 
     @Override
@@ -234,6 +238,7 @@ public class MainScreen extends Screen {
         for (Building b: buildings) {
             extra += b.getEffect() * b.getOwned() * godModeMultiplier;
         }
+        saveGame();
     }
 
     @Override
