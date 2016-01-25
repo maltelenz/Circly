@@ -4,7 +4,7 @@ public class Building {
     public enum BuildingType {
         FlatSeat,
         AngledSeat
-    };
+    }
 
     private BuildingType btype;
     private int owned;
