@@ -164,6 +164,21 @@ public class AndroidGraphics implements Graphics {
     }
 
     @Override
+    public void drawRect(double x, double y, double radius, Paint paint, float rotation) {
+        double b = radius / Math.sqrt(2);
+        canvas.save();
+        canvas.rotate(rotation, (float) x, (float) y);
+        canvas.drawRect(
+                Math.round(x - b),
+                Math.round(y - b),
+                Math.round(x + b),
+                Math.round(y + b),
+                paint
+        );
+        canvas.restore();
+    }
+
+    @Override
     public void drawARGB(int a, int r, int g, int b) {
         paint.setStyle(Style.FILL);
         canvas.drawARGB(a, r, g, b);
@@ -199,6 +214,11 @@ public class AndroidGraphics implements Graphics {
     }
 
     @Override
+    public void drawButton(Button b, int yOffset) {
+        drawButton(b.text, b.x0, b.y0 + yOffset, b.x1, b.y1 + yOffset);
+    }
+
+    @Override
     public void drawButton(Button b) {
         drawButton(b.text, b.x0, b.y0, b.x1, b.y1);
     }
@@ -223,19 +243,19 @@ public class AndroidGraphics implements Graphics {
     }
 
     @Override
-    public void drawImageButton(ImageButton button, int yOffset, int overlay) {
+    public void drawImageButton(ImageButton button, int overlay) {
         Bitmap bitmap = button.img.bitmap;
 
         dstRect.left = button.x0;
-        dstRect.top = button.y0 + yOffset;
+        dstRect.top = button.y0;
         dstRect.right = button.x1;
-        dstRect.bottom = button.y1 + yOffset;
+        dstRect.bottom = button.y1;
 
         canvas.drawBitmap(bitmap, null, dstRect, null);
         drawString(
                 Integer.toString(overlay),
                 button.x0 + (button.x1 - button.x0) / 2,
-                button.y0 + (button.y1 - button.y0) / 2 + yOffset,
+                button.y0 + (button.y1 - button.y0) / 2,
                 lightTextPaint
         );
     }

@@ -42,7 +42,7 @@ public interface Graphics {
 
     void drawImage(Image Image, int x, int y);
 
-    void drawImageButton(ImageButton button, int yOffset, int overlay);
+    void drawImageButton(ImageButton button, int overlay);
 
     void drawString(String text, double x, double y);
 
@@ -54,6 +54,8 @@ public interface Graphics {
 
     void drawButton(String text, int x0, int y0, int x1, int y1);
 
+    void drawButton(Button b, int yOffset);
+
     void drawButton(Button b);
 
     int getWidth();
@@ -61,6 +63,8 @@ public interface Graphics {
     int getHeight();
 
     void drawTriangle(double x, double y, double radius, Paint paint, float rotation);
+
+    void drawRect(double x, double y, double radius, Paint paint, float rotation);
 
     void drawARGB(int i, int j, int k, int l);
 

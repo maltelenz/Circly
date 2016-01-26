@@ -33,14 +33,19 @@ public interface Game {
 
     void updatePoints(float points);
 
-    ArrayList<Building> getBuildings();
+    void updateCorners(int corners);
+
+    void updateBuildings(ArrayList<Building> buildings);
 
     float getPoints();
+
+    ArrayList<Building> getBuildings();
+
+    int getCorners();
 
     /**
      * Locks the screen in portrait mode.
      */
     void lockOrientationPortrait();
 
-    void updateBuildings(ArrayList<Building> buildings);
 }

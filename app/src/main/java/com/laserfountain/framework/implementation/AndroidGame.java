@@ -161,6 +161,14 @@ public abstract class AndroidGame extends Activity implements Game {
     }
 
     @Override
+    public void updateCorners(int corners) {
+        SharedPreferences preferences = getLevelPreferences();
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt(getString(R.string.corners_bought), corners);
+        editor.commit();
+    }
+
+    @Override
     public void updateBuildings(ArrayList<Building> buildings) {
         SharedPreferences preferences = getLevelPreferences();
         SharedPreferences.Editor editor = preferences.edit();
@@ -178,6 +186,12 @@ public abstract class AndroidGame extends Activity implements Game {
             buildings.add(new Building(btype, preferences.getInt(btype.name(), 0)));
         }
         return buildings;
+    }
+
+    @Override
+    public int getCorners() {
+        SharedPreferences preferences = getLevelPreferences();
+        return preferences.getInt(getString(R.string.corners_bought), 3);
     }
 
     @Override

@@ -4,7 +4,9 @@ import android.graphics.Color;
 
 public class ColorPalette {
     public static int background = Color.rgb(212, 212, 212);
-    public static int button = Color.rgb(11, 176, 222);
+    public static int button = Color.argb(230, 11, 176, 222);
+
+    public static int drawer = Color.argb(200, 11, 176, 222);
 
     public static int circleGreen = Color.rgb(169, 222, 51);
 
