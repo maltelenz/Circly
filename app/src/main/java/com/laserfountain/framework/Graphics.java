@@ -62,7 +62,7 @@ public interface Graphics {
 
     int getHeight();
 
-    void drawTriangle(double x, double y, double radius, Paint paint, float rotation);
+    void drawNgon(double x, double y, double radius, int n, Paint paint, float rotation);
 
     void drawRect(double x, double y, double radius, Paint paint, float rotation);
 

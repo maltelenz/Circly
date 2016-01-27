@@ -142,18 +142,22 @@ public class AndroidGraphics implements Graphics {
     }
 
     @Override
-    public void drawTriangle(double x, double y, double radius, Paint paint, float rotation) {
-        double d = Math.sqrt(3) * radius / 2;
-        double c = 3 * radius / 2;
+    public void drawNgon(double x, double y, double radius, int n, Paint paint, float rotation) {
+        double angle = 2.0 * Math.PI / n;
+
         List<Point> points = new ArrayList<>();
-        points.add(new Point((int) Math.round(x), (int) Math.round(y - radius)));
-        points.add(new Point((int) Math.round(x + d), (int) Math.round(y - radius + c)));
-        points.add(new Point((int) Math.round(x - d), (int) Math.round(y - radius + c)));
+        for(int i = 0; i < n; i++) {
+            points.add(new Point(
+                    (int) Math.round(x + radius * Math.cos(angle * i)),
+                    (int) Math.round(y + radius * Math.sin(angle * i))
+            ));
+        }
 
         Path path = new Path();
         path.moveTo(points.get(0).x, points.get(0).y);
-        path.lineTo(points.get(1).x, points.get(1).y);
-        path.lineTo(points.get(2).x, points.get(2).y);
+        for (Point p : points.subList(1, points.size())) {
+            path.lineTo(p.x, p.y);
+        }
         path.lineTo(points.get(0).x, points.get(0).y);
         path.close();
 

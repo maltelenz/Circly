@@ -17,8 +17,8 @@ import java.util.List;
 public class MainScreen extends Screen {
     private static final int MAX_TOUCHES = 360;
     private static final int TOUCH_DIFF = 8;
-    private static final int CORNER_COST = 1000;
-    private static final int MAX_CORNERS = 4;
+    private static final int CORNER_COST = 10000;
+    private static final int MAX_CORNERS = 20;
     private int SMALL_CIRCLE_RADIUS;
     private int SCREEN_WIDTH;
     private int SCREEN_HEIGHT;
@@ -67,7 +67,7 @@ public class MainScreen extends Screen {
 
         buildings = game.getBuildings();
 
-        corners = game.getCorners();
+        corners = 3;
 
         updateExtra();
 
@@ -247,26 +247,14 @@ public class MainScreen extends Screen {
                 break;
         }
 
-        switch (corners) {
-            case 3:
-                g.drawTriangle(
-                        SCREEN_WIDTH / 2,
-                        SCREEN_HEIGHT / 2.5,
-                        CIRCLE_RADIUS,
-                        circlePainter,
-                        rotation
-                );
-                break;
-            case 4:
-                g.drawRect(
-                        SCREEN_WIDTH / 2,
-                        SCREEN_HEIGHT / 2.5,
-                        CIRCLE_RADIUS,
-                        circlePainter,
-                        rotation
-                );
-                break;
-        }
+        g.drawNgon(
+                SCREEN_WIDTH / 2,
+                SCREEN_HEIGHT / 2.5,
+                CIRCLE_RADIUS,
+                corners,
+                circlePainter,
+                rotation
+        );
 
         g.drawStringCentered("+" + df.format(multiplier * baseClick));
 
@@ -276,9 +264,9 @@ public class MainScreen extends Screen {
                     (int) Math.round(SCREEN_HEIGHT / 2.5 - CIRCLE_RADIUS - SMALL_CIRCLE_RADIUS),
                     SCREEN_WIDTH / 2 + CIRCLE_RADIUS + SMALL_CIRCLE_RADIUS,
                     (int) Math.round(SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + SMALL_CIRCLE_RADIUS)
-                    ),
+            ),
                 ((float) touches) / MAX_TOUCHES,
-            arcPainter);
+                arcPainter);
 
         if (buildingsShown) {
             g.drawButton(hideBuildingsButton);
