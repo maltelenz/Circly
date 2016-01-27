@@ -154,6 +154,21 @@ public class AndroidGraphics implements Graphics {
 
     @Override
     public void drawNgon(double x, double y, double radius, int n, Paint paint, float rotation) {
+        if (n == 1) {
+            canvas.save();
+            canvas.rotate(rotation, (float) x, (float) y);
+            drawCircle(x + radius / 2, y, Math.round(radius / 4), paint);
+            canvas.restore();
+            return;
+        } else if (n == 2) {
+            canvas.save();
+            canvas.rotate(rotation, (float) x, (float) y);
+            paint.setStrokeWidth(Math.round(radius / 4));
+            drawLine(x - radius, y, x + radius, y, paint);
+            canvas.restore();
+            return;
+        }
+
         double angle = 2.0 * Math.PI / n;
 
         List<Point> points = new ArrayList<>();

@@ -3,6 +3,7 @@ package com.laserfountain.circly;
 import android.content.Context;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 
 import com.laserfountain.framework.Game;
 import com.laserfountain.framework.Graphics;
@@ -50,6 +51,8 @@ public class MainScreen extends Screen {
     Paint arcPainter;
     private final Paint circlePainter;
     private double baseClick;
+    private double cornerEffect;
+    private Paint multiplierPaint;
 
     public MainScreen(Game game, Context context) {
         super(game);
@@ -123,6 +126,17 @@ public class MainScreen extends Screen {
         circlePainter = new Paint();
         circlePainter.set(arcPainter);
         circlePainter.setStyle(Paint.Style.FILL);
+
+        this.multiplierPaint = new Paint();
+
+        float fontSize = game.scale(45);
+
+        multiplierPaint.setTextSize(fontSize);
+        multiplierPaint.setTextAlign(Paint.Align.CENTER);
+        multiplierPaint.setAntiAlias(true);
+        multiplierPaint.setColor(ColorPalette.mediumText);
+        multiplierPaint.setTypeface(Typeface.DEFAULT_BOLD);
+
     }
 
     private int getCornerCost() {
@@ -229,7 +243,8 @@ public class MainScreen extends Screen {
         int intclicks = Math.round(clicks);
         g.drawString(Integer.toString(intclicks), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 10);
         DecimalFormat df = new DecimalFormat("#.##");
-        g.drawString(df.format(extra * 100) + "/s", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + SMALL_CIRCLE_RADIUS * 20);
+        g.drawString(df.format(extra * 100) + "/s", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + game.scaleX(200));
+        g.drawString("(+" + df.format(cornerEffect * 100) + "%)", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + game.scaleX(275), multiplierPaint);
 
         rotation = (rotation + ((float) touches) / MAX_TOUCHES * deltaTime * 8) % 360;
 
@@ -304,10 +319,12 @@ public class MainScreen extends Screen {
 
     private void updateExtra() {
         extra = 0;
-        baseClick = (1 + (corners - 3) * 0.1);
         for (Building b: buildings) {
-            extra += b.getEffect() * b.getOwned() * baseClick;
+            extra += b.getEffect() * b.getOwned();
         }
+        cornerEffect = (corners - 1) * 0.1;
+        baseClick = 1 + cornerEffect;
+        extra = extra * baseClick;
         saveGame();
     }
 

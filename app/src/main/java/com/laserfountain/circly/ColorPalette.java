@@ -19,6 +19,7 @@ public class ColorPalette {
     public static int progressBackground = Color.argb(20, 199, 244, 100);
 
     public static int darkText = Color.rgb(27, 0, 107);
+    public static int mediumText = Color.rgb(100, 100, 120);
     public static int lightText = Color.WHITE;
 
     public static int gridLines = Color.rgb(20, 20, 20);

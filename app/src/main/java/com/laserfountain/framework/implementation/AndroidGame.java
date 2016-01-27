@@ -191,7 +191,7 @@ public abstract class AndroidGame extends Activity implements Game {
     @Override
     public int getCorners() {
         SharedPreferences preferences = getLevelPreferences();
-        return preferences.getInt(getString(R.string.corners_bought), 3);
+        return preferences.getInt(getString(R.string.corners_bought), 1);
     }
 
     @Override
