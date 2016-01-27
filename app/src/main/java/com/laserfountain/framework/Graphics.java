@@ -5,6 +5,7 @@ import android.graphics.Path;
 import android.graphics.RectF;
 
 import com.laserfountain.circly.Button;
+import com.laserfountain.circly.BuyButton;
 import com.laserfountain.circly.ImageButton;
 
 public interface Graphics {
@@ -54,9 +55,11 @@ public interface Graphics {
 
     void drawButton(String text, int x0, int y0, int x1, int y1);
 
-    void drawButton(Button b, int yOffset);
+    void drawButton(String text, int x0, int y0, int x1, int y1, int number, int cost);
 
     void drawButton(Button b);
+
+    void drawBuyButton(BuyButton cornerUpgradeButton);
 
     int getWidth();
 

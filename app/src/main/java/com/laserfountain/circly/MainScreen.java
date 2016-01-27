@@ -1,14 +1,12 @@
 package com.laserfountain.circly;
 
 import android.content.Context;
-import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.graphics.RectF;
 
 import com.laserfountain.framework.Game;
 import com.laserfountain.framework.Graphics;
 import com.laserfountain.framework.Input.TouchEvent;
-import com.laserfountain.framework.implementation.AndroidImage;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -17,8 +15,8 @@ import java.util.List;
 public class MainScreen extends Screen {
     private static final int MAX_TOUCHES = 360;
     private static final int TOUCH_DIFF = 8;
-    private static final int CORNER_COST = 10000;
-    private static final int MAX_CORNERS = 20;
+    private static final int CORNER_COST = 150;
+    private static final int MAX_CORNERS = 100;
     private int SMALL_CIRCLE_RADIUS;
     private int SCREEN_WIDTH;
     private int SCREEN_HEIGHT;
@@ -28,10 +26,10 @@ public class MainScreen extends Screen {
 
     private final Button showBuildingsButton;
     private final Button hideBuildingsButton;
-    private final ImageButton flatSeatBuildingButton;
-    private final ImageButton angledSeatBuildingButton;
+    private final BuyButton flatSeatBuildingButton;
+    private final BuyButton angledSeatBuildingButton;
 
-    private final Button cornerUpgradeButton;
+    private final BuyButton cornerUpgradeButton;
 
     int buildingsHeight;
 
@@ -67,7 +65,7 @@ public class MainScreen extends Screen {
 
         buildings = game.getBuildings();
 
-        corners = 3;
+        corners = game.getCorners();
 
         updateExtra();
 
@@ -75,7 +73,7 @@ public class MainScreen extends Screen {
 
         int buildingsButtonWidth = game.scaleX(400);
         int buildingsButtonHeight = game.scaleY(100);
-        buildingsHeight = game.scaleY(300);
+        buildingsHeight = game.scaleY(250);
 
         showBuildingsButton = new Button("\u2303",
                 SCREEN_WIDTH / 2 - buildingsButtonWidth / 2,
@@ -89,31 +87,32 @@ public class MainScreen extends Screen {
                 SCREEN_WIDTH / 2 + buildingsButtonWidth / 2,
                 SCREEN_HEIGHT - 2 * buildingsHeight);
 
-        AndroidImage flatSeatImage = new AndroidImage(
-                BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_airline_seat_flat_black_48dp),
-                Graphics.ImageFormat.RGB565
+        flatSeatBuildingButton = new BuyButton("AutoTouch",
+                0,
+                SCREEN_HEIGHT - 2 * buildingsHeight,
+                buildingsHeight,
+                SCREEN_HEIGHT - buildingsHeight,
+                buildings.get(0).getOwned(),
+                buildings.get(0).getCost()
         );
 
-        AndroidImage angledSeatImage = new AndroidImage(
-                BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_airline_seat_flat_angled_black_48dp),
-                Graphics.ImageFormat.RGB565
+        angledSeatBuildingButton = new BuyButton("Rotator",
+                buildingsHeight,
+                SCREEN_HEIGHT - 2 * buildingsHeight,
+                2 * buildingsHeight,
+                SCREEN_HEIGHT - buildingsHeight,
+                buildings.get(1).getOwned(),
+                buildings.get(1).getCost()
         );
 
-        flatSeatBuildingButton = new ImageButton(
-                flatSeatImage,
-                0, SCREEN_HEIGHT - 2 * buildingsHeight, buildingsHeight, SCREEN_HEIGHT - buildingsHeight
-        );
-
-        angledSeatBuildingButton = new ImageButton(
-                angledSeatImage,
-                buildingsHeight, SCREEN_HEIGHT - 2 * buildingsHeight, 2 * buildingsHeight, SCREEN_HEIGHT - buildingsHeight
-        );
-
-        cornerUpgradeButton = new Button("X",
+        cornerUpgradeButton = new BuyButton("Edges",
                 0,
                 SCREEN_HEIGHT - buildingsHeight,
                 buildingsHeight,
-                SCREEN_HEIGHT);
+                SCREEN_HEIGHT,
+                corners,
+                getCornerCost()
+        );
 
         arcPainter = new Paint();
         arcPainter.setColor(ColorPalette.circleGreen);
@@ -124,6 +123,10 @@ public class MainScreen extends Screen {
         circlePainter = new Paint();
         circlePainter.set(arcPainter);
         circlePainter.setStyle(Paint.Style.FILL);
+    }
+
+    private int getCornerCost() {
+        return (int) Math.round(Math.pow(corners, 3) * CORNER_COST);
     }
 
     @Override
@@ -148,19 +151,24 @@ public class MainScreen extends Screen {
                     }
                     if (flatSeatBuildingButton.inBounds(event)) {
                         clicks = buildings.get(0).buy(clicks);
+                        flatSeatBuildingButton.setNumber(buildings.get(0).getOwned());
+                        flatSeatBuildingButton.setCost(buildings.get(0).getCost());
                         updateExtra();
                         continue;
                     }
                     if (angledSeatBuildingButton.inBounds(event)) {
                         clicks = buildings.get(1).buy(clicks);
+                        angledSeatBuildingButton.setNumber(buildings.get(1).getOwned());
+                        angledSeatBuildingButton.setCost(buildings.get(1).getCost());
                         updateExtra();
                         continue;
                     }
                     if (cornerUpgradeButton.inBounds(event)) {
-                        int cost = corners * CORNER_COST;
-                        if (cost < clicks && corners < MAX_CORNERS) {
-                            clicks -= cost;
-                            corners ++;
+                        if (cornerUpgradeButton.cost < clicks && corners < MAX_CORNERS) {
+                            clicks -= cornerUpgradeButton.cost;
+                            corners++;
+                            cornerUpgradeButton.setNumber(corners);
+                            cornerUpgradeButton.setCost(getCornerCost());
                             updateExtra();
                         }
                         continue;
@@ -271,9 +279,9 @@ public class MainScreen extends Screen {
         if (buildingsShown) {
             g.drawButton(hideBuildingsButton);
             g.drawRect(0, SCREEN_HEIGHT - 2 * buildingsHeight, SCREEN_WIDTH, 2 * buildingsHeight, ColorPalette.drawer);
-            g.drawImageButton(flatSeatBuildingButton, buildings.get(0).getOwned());
-            g.drawImageButton(angledSeatBuildingButton, buildings.get(1).getOwned());
-            g.drawButton(cornerUpgradeButton);
+            g.drawBuyButton(flatSeatBuildingButton);
+            g.drawBuyButton(angledSeatBuildingButton);
+            g.drawBuyButton(cornerUpgradeButton);
         } else {
             g.drawButton(showBuildingsButton);
         }
@@ -290,6 +298,7 @@ public class MainScreen extends Screen {
 
     @Override
     public void pause() {
+        saveGame();
     }
 
     @Override
@@ -302,6 +311,12 @@ public class MainScreen extends Screen {
 
     @Override
     public boolean backButton() {
-        return true;
+        if (buildingsShown) {
+            buildingsShown = false;
+            return false;
+        } else {
+            saveGame();
+            return true;
+        }
     }
 }

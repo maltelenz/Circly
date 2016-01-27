@@ -12,6 +12,7 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 
 import com.laserfountain.circly.Button;
+import com.laserfountain.circly.BuyButton;
 import com.laserfountain.circly.ColorPalette;
 import com.laserfountain.circly.ImageButton;
 import com.laserfountain.framework.Graphics;
@@ -27,6 +28,8 @@ public class AndroidGraphics implements Graphics {
     Paint paint;
     Paint darkTextPaint;
     Paint lightTextPaint;
+    Paint smallLightTextPaint;
+    Paint mediumLightTextPaint;
 
     Rect srcRect = new Rect();
     Rect dstRect = new Rect();
@@ -55,6 +58,14 @@ public class AndroidGraphics implements Graphics {
         this.lightTextPaint = new Paint();
         lightTextPaint.set(darkTextPaint);
         lightTextPaint.setColor(ColorPalette.lightText);
+
+        this.smallLightTextPaint = new Paint();
+        smallLightTextPaint.set(lightTextPaint);
+        smallLightTextPaint.setTextSize(scale(30));
+
+        this.mediumLightTextPaint = new Paint();
+        mediumLightTextPaint.set(lightTextPaint);
+        mediumLightTextPaint.setTextSize(scale(40));
     }
 
     @Override
@@ -218,13 +229,24 @@ public class AndroidGraphics implements Graphics {
     }
 
     @Override
-    public void drawButton(Button b, int yOffset) {
-        drawButton(b.text, b.x0, b.y0 + yOffset, b.x1, b.y1 + yOffset);
+    public void drawButton(String text, int x0, int y0, int x1, int y1, int number, int cost) {
+        Paint rectanglePainter = new Paint();
+        rectanglePainter.setColor(ColorPalette.button);
+        rectanglePainter.setShadowLayer(scale(10.0f), scale(2.0f), scale(2.0f), ColorPalette.buttonShadow);
+        canvas.drawRect(x0, y0, x1, y1, rectanglePainter);
+        drawString(Integer.toString(number), x0 + (x1 - x0) / 2, y0 + (y1 - y0) / 2, lightTextPaint);
+        drawString(Integer.toString(cost), x0 + (x1 - x0) / 2, y0 + (y1 - y0) * 9 / 10, mediumLightTextPaint);
+        drawString(text, x0 + (x1 - x0) / 2, y0 + (y1 - y0) / 10, smallLightTextPaint);
     }
 
     @Override
     public void drawButton(Button b) {
         drawButton(b.text, b.x0, b.y0, b.x1, b.y1);
+    }
+
+    @Override
+    public void drawBuyButton(BuyButton b) {
+        drawButton(b.text, b.x0, b.y0, b.x1, b.y1, b.number, b.cost);
     }
 
     public void drawImage(Image Image, int x, int y, int srcX, int srcY, int srcWidth, int srcHeight) {
