@@ -57,7 +57,7 @@ public class MainScreen extends Screen {
         SCREEN_HEIGHT = game.getGraphics().getHeight();
 
         CIRCLE_RADIUS = game.scaleX(320);
-        SMALL_CIRCLE_RADIUS = game.scaleX(65);
+        SMALL_CIRCLE_RADIUS = game.scaleX(10);
         touches = 1;
         multiplier = 1;
 
@@ -228,30 +228,25 @@ public class MainScreen extends Screen {
         int intclicks = Math.round(clicks);
         g.drawString(Integer.toString(intclicks), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 10);
         DecimalFormat df = new DecimalFormat("#.##");
-        g.drawString(df.format(extra * 100) + "/s", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + SMALL_CIRCLE_RADIUS * 3);
+        g.drawString(df.format(extra * 100) + "/s", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + SMALL_CIRCLE_RADIUS * 20);
 
         rotation = (rotation + ((float) touches) / MAX_TOUCHES * deltaTime * 8) % 360;
 
         switch (multiplier) {
             case 1:
                 circlePainter.setColor(ColorPalette.circlePurple);
-                arcPainter.setColor(ColorPalette.circleRed);
                 break;
             case 2:
                 circlePainter.setColor(ColorPalette.circleRed);
-                arcPainter.setColor(ColorPalette.circleOrange);
                 break;
             case 3:
                 circlePainter.setColor(ColorPalette.circleOrange);
-                arcPainter.setColor(ColorPalette.circleYellow);
                 break;
             case 4:
                 circlePainter.setColor(ColorPalette.circleYellow);
-                arcPainter.setColor(ColorPalette.circleTeal);
                 break;
             case 5:
                 circlePainter.setColor(ColorPalette.circleTeal);
-                arcPainter.setColor(ColorPalette.circleTeal);
                 break;
         }
 
@@ -266,15 +261,11 @@ public class MainScreen extends Screen {
 
         g.drawStringCentered("+" + df.format(multiplier * baseClick));
 
-        g.drawArc(
-            new RectF(
-                    SCREEN_WIDTH / 2 - CIRCLE_RADIUS - SMALL_CIRCLE_RADIUS,
-                    (int) Math.round(SCREEN_HEIGHT / 2.5 - CIRCLE_RADIUS - SMALL_CIRCLE_RADIUS),
-                    SCREEN_WIDTH / 2 + CIRCLE_RADIUS + SMALL_CIRCLE_RADIUS,
-                    (int) Math.round(SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + SMALL_CIRCLE_RADIUS)
-            ),
-                ((float) touches) / MAX_TOUCHES,
-                arcPainter);
+        drawArc(g, ColorPalette.circlePurple, 1);
+        drawArc(g, ColorPalette.circleRed, 2);
+        drawArc(g, ColorPalette.circleOrange, 3);
+        drawArc(g, ColorPalette.circleYellow, 4);
+        drawArc(g, ColorPalette.circleTeal, 5);
 
         if (buildingsShown) {
             g.drawButton(hideBuildingsButton);
@@ -285,6 +276,29 @@ public class MainScreen extends Screen {
         } else {
             g.drawButton(showBuildingsButton);
         }
+    }
+
+    private void drawArc(Graphics g, int color, int comp) {
+        float percent;
+        if (multiplier < comp) {
+            return;
+        } else if (multiplier > comp) {
+            percent = 1;
+        } else {
+            percent = ((float) touches) / MAX_TOUCHES;
+        }
+
+        int extraRadius =  2 * SMALL_CIRCLE_RADIUS * (comp + 2);
+        arcPainter.setColor(color);
+        g.drawArc(
+                new RectF(
+                        SCREEN_WIDTH / 2 - CIRCLE_RADIUS - extraRadius,
+                        (int) Math.round(SCREEN_HEIGHT / 2.5 - CIRCLE_RADIUS - extraRadius),
+                        SCREEN_WIDTH / 2 + CIRCLE_RADIUS + extraRadius,
+                        (int) Math.round(SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + extraRadius)
+                ),
+                percent,
+                arcPainter);
     }
 
     private void updateExtra() {
