@@ -21,7 +21,7 @@ public class MainScreen extends Screen {
     private int SCREEN_WIDTH;
     private int SCREEN_HEIGHT;
     private int CIRCLE_RADIUS;
-    private static final float SHRINK_INTERVAL = 50;
+    private static final float SHRINK_INTERVAL = 5;
     private static final float SAVE_INTERVAL = 500;
 
     private final Button showBuildingsButton;
@@ -176,13 +176,14 @@ public class MainScreen extends Screen {
                 }
 
                 clicks += multiplier * baseClick;
+                touches += TOUCH_DIFF;
                 if (touches >= MAX_TOUCHES) {
                     if (multiplier != 5) {
                         multiplier++;
-                        touches = 0;
+                        touches -= MAX_TOUCHES;
+                    } else {
+                        touches = MAX_TOUCHES;
                     }
-                } else {
-                    touches += TOUCH_DIFF;
                 }
             }
         }
@@ -196,7 +197,7 @@ public class MainScreen extends Screen {
                     multiplier = Math.max(multiplier - 1, 1);
                 }
             } else {
-                touches = Math.max(touches - TOUCH_DIFF, 0);
+                touches = Math.round(Math.max(touches - ((float)TOUCH_DIFF)/10, 0));
             }
         }
 
