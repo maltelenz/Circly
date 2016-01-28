@@ -32,9 +32,9 @@ public class Building {
     }
 
     public float buy(float currency) {
-        if (currency > cost) {
+        if (currency > getCost()) {
             owned++;
-            return currency - cost;
+            return currency - getCost();
         }
         return currency;
     }
