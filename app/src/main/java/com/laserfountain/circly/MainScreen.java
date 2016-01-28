@@ -10,6 +10,7 @@ import com.laserfountain.framework.Graphics;
 import com.laserfountain.framework.Input.TouchEvent;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -300,8 +301,11 @@ public class MainScreen extends Screen {
         g.clearScreen(ColorPalette.background);
 
         int intclicks = Math.round(clicks);
-        g.drawString(Integer.toString(intclicks), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 10);
-        DecimalFormat df = new DecimalFormat("#.##");
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setGroupingSeparator(' ');
+        DecimalFormat df = new DecimalFormat("###,###", symbols);
+        g.drawString(df.format(intclicks), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 10);
+        df = new DecimalFormat("###,###.##", symbols);
         g.drawString(df.format(extra * 100) + "/s", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + game.scaleX(200));
         g.drawString("(+" + df.format(cornerEffect * 100) + "%)", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + game.scaleX(275), multiplierPaint);
 

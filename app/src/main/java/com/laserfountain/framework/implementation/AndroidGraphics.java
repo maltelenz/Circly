@@ -19,6 +19,8 @@ import com.laserfountain.circly.ImageButton;
 import com.laserfountain.framework.Graphics;
 import com.laserfountain.framework.Image;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -261,8 +263,11 @@ public class AndroidGraphics implements Graphics {
         rectanglePainter.setColor(ColorPalette.button);
         rectanglePainter.setShadowLayer(scale(10.0f), scale(2.0f), scale(2.0f), ColorPalette.buttonShadow);
         canvas.drawRect(x0, y0, x1, y1, rectanglePainter);
-        drawString(Integer.toString(number), x0 + (x1 - x0) / 2, y0 + (y1 - y0) / 2, lightTextPaint);
-        drawString(Integer.toString(cost), x0 + (x1 - x0) / 2, y0 + (y1 - y0) * 9 / 10, mediumLightTextPaint);
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setGroupingSeparator(' ');
+        DecimalFormat df = new DecimalFormat("###,###", symbols);
+        drawString(df.format(number), x0 + (x1 - x0) / 2, y0 + (y1 - y0) / 2, lightTextPaint);
+        drawString(df.format(cost), x0 + (x1 - x0) / 2, y0 + (y1 - y0) * 9 / 10, mediumLightTextPaint);
         drawString(text, x0 + (x1 - x0) / 2, y0 + (y1 - y0) / 10, smallLightTextPaint);
     }
 
