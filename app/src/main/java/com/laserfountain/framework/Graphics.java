@@ -4,6 +4,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 
+import com.laserfountain.circly.BonusNGon;
 import com.laserfountain.circly.Button;
 import com.laserfountain.circly.BuyButton;
 import com.laserfountain.circly.ImageButton;
@@ -66,6 +67,8 @@ public interface Graphics {
     int getHeight();
 
     void drawNgon(double x, double y, double radius, int n, Paint paint, float rotation);
+
+    void drawBonusNGon(BonusNGon bonusNGon, int corners);
 
     void drawRect(double x, double y, double radius, Paint paint, float rotation);
 

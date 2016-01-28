@@ -11,6 +11,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 
+import com.laserfountain.circly.BonusNGon;
 import com.laserfountain.circly.Button;
 import com.laserfountain.circly.BuyButton;
 import com.laserfountain.circly.ColorPalette;
@@ -30,6 +31,7 @@ public class AndroidGraphics implements Graphics {
     Paint lightTextPaint;
     Paint smallLightTextPaint;
     Paint mediumLightTextPaint;
+    Paint bonusPaint;
 
     Rect srcRect = new Rect();
     Rect dstRect = new Rect();
@@ -66,6 +68,11 @@ public class AndroidGraphics implements Graphics {
         this.mediumLightTextPaint = new Paint();
         mediumLightTextPaint.set(lightTextPaint);
         mediumLightTextPaint.setTextSize(scale(40));
+
+        bonusPaint = new Paint();
+        bonusPaint.setAntiAlias(true);
+        bonusPaint.setColor(ColorPalette.bonus);
+        bonusPaint.setShadowLayer(scale(10.0f), scale(2.0f), scale(2.0f), ColorPalette.buttonShadow);
     }
 
     @Override
@@ -191,6 +198,11 @@ public class AndroidGraphics implements Graphics {
         canvas.rotate(rotation, (float) x, (float) y);
         canvas.drawPath(path, paint);
         canvas.restore();
+    }
+
+    @Override
+    public void drawBonusNGon(BonusNGon bonusNGon, int corners) {
+        drawNgon(bonusNGon.x, bonusNGon.y, bonusNGon.radius, corners, bonusPaint, 0);
     }
 
     @Override

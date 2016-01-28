@@ -32,6 +32,10 @@ public class ColorPalette {
 
     public static int yellow = Color.rgb(255, 234, 79);
 
+    public static int snackBackground = Color.rgb(50, 50, 50);
+
     public static int rectangleShadow = Color.BLACK;
     public static int buttonShadow = Color.BLACK;
+
+    public static int bonus = Color.argb(200, 255, 227, 76);
 }
