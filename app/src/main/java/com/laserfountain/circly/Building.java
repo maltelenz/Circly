@@ -48,7 +48,7 @@ public class Building {
     }
 
     public int getCost() {
-        return (int) Math.round(Math.pow(owned, 1.5) + cost);
+        return (int) Math.round(Math.pow(owned, 1.9) + cost);
     }
 
     public String getTypeString() {
