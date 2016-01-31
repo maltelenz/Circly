@@ -4,7 +4,8 @@ public class Building extends BuyButton{
 
     public enum BuildingType {
         AutoTouch,
-        Rotator
+        Rotator,
+        SuperSpin
     }
 
     private BuildingType btype;
@@ -24,6 +25,10 @@ public class Building extends BuyButton{
             case Rotator:
                 effect = 0.03;
                 cost = 5000;
+                break;
+            case SuperSpin:
+                effect = 0.9;
+                cost = 100000;
                 break;
         }
     }
