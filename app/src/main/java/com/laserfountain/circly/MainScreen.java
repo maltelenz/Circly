@@ -97,17 +97,13 @@ public class MainScreen extends Screen {
                 SCREEN_WIDTH / 2 + buildingsButtonWidth / 2,
                 SCREEN_HEIGHT - 2 * buildingsHeight);
 
-        buildings.get(0).setArea(
-                0,
-                SCREEN_HEIGHT - 2 * buildingsHeight,
-                buildingsHeight,
-                SCREEN_HEIGHT - buildingsHeight);
-
-        buildings.get(1).setArea(
-                buildingsHeight,
-                SCREEN_HEIGHT - 2 * buildingsHeight,
-                2 * buildingsHeight,
-                SCREEN_HEIGHT - buildingsHeight);
+        for (int i = 0; i < buildings.size(); i++) {
+            buildings.get(i).setArea(
+                    i * buildingsHeight,
+                    SCREEN_HEIGHT - 2 * buildingsHeight,
+                    (i + 1) * buildingsHeight,
+                    SCREEN_HEIGHT - buildingsHeight);
+        }
 
         cornerUpgrade = new Upgrade(
                 Upgrade.UpgradeType.Edges,
