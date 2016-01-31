@@ -319,9 +319,9 @@ public class MainScreen extends Screen {
             g.drawButton(hideBuildingsButton);
             g.drawRect(0, SCREEN_HEIGHT - 2 * buildingsHeight, SCREEN_WIDTH, 2 * buildingsHeight, ColorPalette.drawer);
             for (Building b : buildings) {
-                g.drawBuyButton(b);
+                g.drawBuyButton(b, clicks);
             }
-            g.drawBuyButton(cornerUpgrade);
+            g.drawBuyButton(cornerUpgrade, clicks);
         } else {
             g.drawButton(showBuildingsButton);
         }

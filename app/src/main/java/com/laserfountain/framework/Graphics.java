@@ -56,11 +56,11 @@ public interface Graphics {
 
     void drawButton(String text, int x0, int y0, int x1, int y1);
 
-    void drawButton(String text, int x0, int y0, int x1, int y1, int number, int cost);
+    void drawButton(String text, int x0, int y0, int x1, int y1, int number, int cost, boolean enabled);
 
     void drawButton(Button b);
 
-    void drawBuyButton(BuyButton cornerUpgradeButton);
+    void drawBuyButton(BuyButton cornerUpgradeButton, float clicks);
 
     int getWidth();
 

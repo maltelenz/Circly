@@ -258,9 +258,13 @@ public class AndroidGraphics implements Graphics {
     }
 
     @Override
-    public void drawButton(String text, int x0, int y0, int x1, int y1, int number, int cost) {
+    public void drawButton(String text, int x0, int y0, int x1, int y1, int number, int cost, boolean enabled) {
         Paint rectanglePainter = new Paint();
-        rectanglePainter.setColor(ColorPalette.button);
+        if (enabled) {
+            rectanglePainter.setColor(ColorPalette.button);
+        } else {
+            rectanglePainter.setColor(ColorPalette.disabledButton);
+        }
         rectanglePainter.setShadowLayer(scale(10.0f), scale(2.0f), scale(2.0f), ColorPalette.buttonShadow);
         canvas.drawRect(x0, y0, x1, y1, rectanglePainter);
         DecimalFormatSymbols symbols = new DecimalFormatSymbols();
@@ -277,8 +281,8 @@ public class AndroidGraphics implements Graphics {
     }
 
     @Override
-    public void drawBuyButton(BuyButton b) {
-        drawButton(b.getText(), b.x0, b.y0, b.x1, b.y1, b.getOwned(), b.getCost());
+    public void drawBuyButton(BuyButton b, float clicks) {
+        drawButton(b.getText(), b.x0, b.y0, b.x1, b.y1, b.getOwned(), b.getCost(), b.getCost() < clicks);
     }
 
     public void drawImage(Image Image, int x, int y, int srcX, int srcY, int srcWidth, int srcHeight) {
