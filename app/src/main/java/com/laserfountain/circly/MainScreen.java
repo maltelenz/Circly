@@ -31,8 +31,8 @@ public class MainScreen extends Screen {
     private static final float SHRINK_INTERVAL = 5;
     private static final float SAVE_INTERVAL = 500;
 
-    private final Button showBuildingsButton;
-    private final Button hideBuildingsButton;
+    private final ArcButton showBuildingsButton;
+    private final ArcButton hideBuildingsButton;
 
     private final Upgrade cornerUpgrade;
 
@@ -81,21 +81,23 @@ public class MainScreen extends Screen {
 
         buildingsShown = false;
 
-        int buildingsButtonWidth = game.scaleX(400);
-        int buildingsButtonHeight = game.scaleY(100);
+        int buildingsButtonWidth = game.scaleX(200);
+        int buildingsButtonHeight = game.scaleY(120);
         buildingsHeight = game.scaleY(250);
 
-        showBuildingsButton = new Button("\u2303",
-                SCREEN_WIDTH / 2 - buildingsButtonWidth / 2,
-                SCREEN_HEIGHT - buildingsButtonHeight,
-                SCREEN_WIDTH / 2 + buildingsButtonWidth / 2,
-                SCREEN_HEIGHT);
+        showBuildingsButton = new ArcButton("\u2303",
+                SCREEN_WIDTH / 2,
+                SCREEN_HEIGHT,
+                buildingsButtonWidth,
+                buildingsButtonHeight
+        );
 
-        hideBuildingsButton = new Button("\u2304",
-                SCREEN_WIDTH / 2 - buildingsButtonWidth / 2,
-                SCREEN_HEIGHT - buildingsButtonHeight - 2 * buildingsHeight,
-                SCREEN_WIDTH / 2 + buildingsButtonWidth / 2,
-                SCREEN_HEIGHT - 2 * buildingsHeight);
+        hideBuildingsButton = new ArcButton("\u2304",
+                SCREEN_WIDTH / 2,
+                SCREEN_HEIGHT - 2 * buildingsHeight,
+                buildingsButtonWidth,
+                buildingsButtonHeight
+        );
 
         for (int i = 0; i < buildings.size(); i++) {
             buildings.get(i).setArea(
@@ -150,15 +152,19 @@ public class MainScreen extends Screen {
 
     @Override
     public void update(float deltaTime) {
+        boolean buttonTriggered = false;
+        boolean touchedsomething = false;
         List<TouchEvent> touchEvents = game.getInput().getTouchEvents();
         int len = touchEvents.size();
         for (int i = 0; i < len; i++) {
             TouchEvent event = touchEvents.get(i);
             if (event.type == TouchEvent.TOUCH_DOWN) {
+                touchedsomething = true;
 
                 if (!buildingsShown && showBuildingsButton.inBounds(event)) {
                     // Expand the buildings tab
                     buildingsShown = true;
+                    buttonTriggered = true;
                     continue;
                 }
 
@@ -169,6 +175,7 @@ public class MainScreen extends Screen {
                     clicks += bonusClicks;
                     String text = Integer.toString((int) Math.round(bonusClicks)) + " bonus!";
                     addSnack(text);
+                    buttonTriggered = true;
                     continue;
                 }
 
@@ -176,17 +183,20 @@ public class MainScreen extends Screen {
                     if (hideBuildingsButton.inBounds(event)) {
                         // Hide the buildings tab
                         buildingsShown = false;
+                        buttonTriggered = true;
                         continue;
                     }
                     for (Building b : buildings) {
                         if (b.inBounds(event)) {
                             clicks = b.buy(clicks);
                             updateExtra();
+                            buttonTriggered = true;
                         }
                     }
                     if (cornerUpgrade.inBounds(event)) {
                         clicks = cornerUpgrade.buy(clicks);
                         updateExtra();
+                        buttonTriggered = true;
                         continue;
                     }
                 }
@@ -202,6 +212,10 @@ public class MainScreen extends Screen {
                     }
                 }
             }
+        }
+
+        if (!buttonTriggered && touchedsomething) {
+            buildingsShown = false;
         }
 
         timeUntilShrink -= deltaTime;
@@ -316,14 +330,14 @@ public class MainScreen extends Screen {
         }
 
         if (buildingsShown) {
-            g.drawButton(hideBuildingsButton);
+            g.drawArcButton(hideBuildingsButton);
             g.drawRect(0, SCREEN_HEIGHT - 2 * buildingsHeight, SCREEN_WIDTH, 2 * buildingsHeight, ColorPalette.drawer);
             for (Building b : buildings) {
                 g.drawBuyButton(b, clicks);
             }
             g.drawBuyButton(cornerUpgrade, clicks);
         } else {
-            g.drawButton(showBuildingsButton);
+            g.drawArcButton(showBuildingsButton);
         }
 
         drawSnack(g, deltaTime);

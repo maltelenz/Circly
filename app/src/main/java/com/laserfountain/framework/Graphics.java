@@ -4,6 +4,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 
+import com.laserfountain.circly.ArcButton;
 import com.laserfountain.circly.BonusNGon;
 import com.laserfountain.circly.Button;
 import com.laserfountain.circly.BuyButton;
@@ -61,6 +62,8 @@ public interface Graphics {
     void drawButton(Button b);
 
     void drawBuyButton(BuyButton cornerUpgradeButton, float clicks);
+
+    void drawArcButton(ArcButton b);
 
     int getWidth();
 

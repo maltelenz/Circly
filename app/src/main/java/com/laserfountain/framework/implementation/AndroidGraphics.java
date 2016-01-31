@@ -11,6 +11,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 
+import com.laserfountain.circly.ArcButton;
 import com.laserfountain.circly.BonusNGon;
 import com.laserfountain.circly.Button;
 import com.laserfountain.circly.BuyButton;
@@ -283,6 +284,15 @@ public class AndroidGraphics implements Graphics {
     @Override
     public void drawBuyButton(BuyButton b, float clicks) {
         drawButton(b.getText(), b.x0, b.y0, b.x1, b.y1, b.getOwned(), b.getCost(), b.getCost() < clicks);
+    }
+
+    @Override
+    public void drawArcButton(ArcButton b) {
+        Paint arcPainter = new Paint();
+        arcPainter.setColor(ColorPalette.button);
+        arcPainter.setShadowLayer(scale(10.0f), scale(2.0f), scale(2.0f), ColorPalette.buttonShadow);
+        drawPartialArc(new RectF(b.x - b.xradius, b.y - b.yradius, b.x + b.xradius, b.y + b.yradius), -0.25f, 0.5f, arcPainter);
+        drawString(b.text, b.x, b.y - b.yradius/2, lightTextPaint);
     }
 
     public void drawImage(Image Image, int x, int y, int srcX, int srcY, int srcWidth, int srcHeight) {
