@@ -18,8 +18,6 @@ import java.util.Random;
 public class MainScreen extends Screen {
     private static final int MAX_TOUCHES = 360;
     private static final int TOUCH_DIFF = 8;
-    private static final int CORNER_COST = 150;
-    private static final int MAX_CORNERS = 100;
     private static final int BONUS_NGON_TIME = 500;
     private static final float SNACK_TIME = 300;
 
@@ -35,10 +33,8 @@ public class MainScreen extends Screen {
 
     private final Button showBuildingsButton;
     private final Button hideBuildingsButton;
-    private final BuyButton flatSeatBuildingButton;
-    private final BuyButton angledSeatBuildingButton;
 
-    private final BuyButton cornerUpgradeButton;
+    private final Upgrade cornerUpgrade;
 
     private BonusNGon bonusNGon;
 
@@ -49,7 +45,6 @@ public class MainScreen extends Screen {
 
     private float clicks;
     private ArrayList<Building> buildings;
-    private int corners;
 
     private boolean buildingsShown;
     private float timeUntilShrink;
@@ -84,10 +79,6 @@ public class MainScreen extends Screen {
 
         buildings = game.getBuildings();
 
-        corners = game.getCorners();
-
-        updateExtra();
-
         buildingsShown = false;
 
         int buildingsButtonWidth = game.scaleX(400);
@@ -106,31 +97,25 @@ public class MainScreen extends Screen {
                 SCREEN_WIDTH / 2 + buildingsButtonWidth / 2,
                 SCREEN_HEIGHT - 2 * buildingsHeight);
 
-        flatSeatBuildingButton = new BuyButton("AutoTouch",
+        buildings.get(0).setArea(
                 0,
                 SCREEN_HEIGHT - 2 * buildingsHeight,
                 buildingsHeight,
-                SCREEN_HEIGHT - buildingsHeight,
-                buildings.get(0).getOwned(),
-                buildings.get(0).getCost()
-        );
+                SCREEN_HEIGHT - buildingsHeight);
 
-        angledSeatBuildingButton = new BuyButton("Rotator",
+        buildings.get(1).setArea(
                 buildingsHeight,
                 SCREEN_HEIGHT - 2 * buildingsHeight,
                 2 * buildingsHeight,
-                SCREEN_HEIGHT - buildingsHeight,
-                buildings.get(1).getOwned(),
-                buildings.get(1).getCost()
-        );
+                SCREEN_HEIGHT - buildingsHeight);
 
-        cornerUpgradeButton = new BuyButton("Edges",
+        cornerUpgrade = new Upgrade(
+                Upgrade.UpgradeType.Edges,
+                game.getCorners(),
                 0,
                 SCREEN_HEIGHT - buildingsHeight,
                 buildingsHeight,
-                SCREEN_HEIGHT,
-                corners,
-                getCornerCost()
+                SCREEN_HEIGHT
         );
 
         bonusNGon = null;
@@ -163,10 +148,8 @@ public class MainScreen extends Screen {
         snackTextPaint.setTypeface(Typeface.DEFAULT_BOLD);
 
         snacks = new ArrayList<>();
-    }
 
-    private int getCornerCost() {
-        return (int) Math.round(Math.pow(corners, 3) * CORNER_COST);
+        updateExtra();
     }
 
     @Override
@@ -199,28 +182,15 @@ public class MainScreen extends Screen {
                         buildingsShown = false;
                         continue;
                     }
-                    if (flatSeatBuildingButton.inBounds(event)) {
-                        clicks = buildings.get(0).buy(clicks);
-                        flatSeatBuildingButton.setNumber(buildings.get(0).getOwned());
-                        flatSeatBuildingButton.setCost(buildings.get(0).getCost());
-                        updateExtra();
-                        continue;
-                    }
-                    if (angledSeatBuildingButton.inBounds(event)) {
-                        clicks = buildings.get(1).buy(clicks);
-                        angledSeatBuildingButton.setNumber(buildings.get(1).getOwned());
-                        angledSeatBuildingButton.setCost(buildings.get(1).getCost());
-                        updateExtra();
-                        continue;
-                    }
-                    if (cornerUpgradeButton.inBounds(event)) {
-                        if (cornerUpgradeButton.cost < clicks && corners < MAX_CORNERS) {
-                            clicks -= cornerUpgradeButton.cost;
-                            corners++;
-                            cornerUpgradeButton.setNumber(corners);
-                            cornerUpgradeButton.setCost(getCornerCost());
+                    for (Building b : buildings) {
+                        if (b.inBounds(event)) {
+                            clicks = b.buy(clicks);
                             updateExtra();
                         }
+                    }
+                    if (cornerUpgrade.inBounds(event)) {
+                        clicks = cornerUpgrade.buy(clicks);
+                        updateExtra();
                         continue;
                     }
                 }
@@ -288,7 +258,7 @@ public class MainScreen extends Screen {
     private void saveGame() {
         game.updatePoints(clicks);
         game.updateBuildings(buildings);
-        game.updateCorners(corners);
+        game.updateCorners(cornerUpgrade.getOwned());
     }
 
     @Override
@@ -332,7 +302,7 @@ public class MainScreen extends Screen {
                 SCREEN_WIDTH / 2,
                 SCREEN_HEIGHT / 2.5,
                 CIRCLE_RADIUS,
-                corners,
+                cornerUpgrade.getOwned(),
                 circlePainter,
                 rotation
         );
@@ -346,15 +316,16 @@ public class MainScreen extends Screen {
         drawArc(g, ColorPalette.circleTeal, 5);
 
         if (bonusNGon != null) {
-            g.drawBonusNGon(bonusNGon, Math.max(corners, 3));
+            g.drawBonusNGon(bonusNGon, Math.max(cornerUpgrade.getOwned(), 3));
         }
 
         if (buildingsShown) {
             g.drawButton(hideBuildingsButton);
             g.drawRect(0, SCREEN_HEIGHT - 2 * buildingsHeight, SCREEN_WIDTH, 2 * buildingsHeight, ColorPalette.drawer);
-            g.drawBuyButton(flatSeatBuildingButton);
-            g.drawBuyButton(angledSeatBuildingButton);
-            g.drawBuyButton(cornerUpgradeButton);
+            for (Building b : buildings) {
+                g.drawBuyButton(b);
+            }
+            g.drawBuyButton(cornerUpgrade);
         } else {
             g.drawButton(showBuildingsButton);
         }
@@ -418,7 +389,7 @@ public class MainScreen extends Screen {
         for (Building b: buildings) {
             extra += b.getEffect() * b.getOwned();
         }
-        cornerEffect = (corners - 1) * 0.1;
+        cornerEffect = (cornerUpgrade.getOwned() - 1) * 0.1;
         baseClick = 1 + cornerEffect;
         extra = extra * baseClick;
         saveGame();

@@ -1,21 +1,23 @@
 package com.laserfountain.circly;
 
-public class BuyButton extends Button{
+public abstract class BuyButton extends Button{
 
-    public int cost;
-    public int number;
-
-    public BuyButton(String text, int x0, int y0, int x1, int y1, int number, int cost) {
+    public BuyButton(String text, int x0, int y0, int x1, int y1) {
         super(text, x0, y0, x1, y1);
-        this.number = number;
-        this.cost = cost;
     }
 
-    public void setNumber(int number) {
-        this.number = number;
+    public float buy(float currency) {
+        if (currency > getCost()) {
+            // We need to calculate cost before increasing number, or it will become more expensive.
+            float currencyAfter = currency - getCost();
+            increaseOwned();
+            return currencyAfter;
+        }
+        return currency;
     }
 
-    public void setCost(int cost) {
-        this.cost = cost;
-    }
+    public abstract void increaseOwned();
+    public abstract int getOwned();
+    public abstract int getCost();
+    public abstract String getText();
 }

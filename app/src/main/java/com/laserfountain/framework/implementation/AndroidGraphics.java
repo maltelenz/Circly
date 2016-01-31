@@ -278,7 +278,7 @@ public class AndroidGraphics implements Graphics {
 
     @Override
     public void drawBuyButton(BuyButton b) {
-        drawButton(b.text, b.x0, b.y0, b.x1, b.y1, b.number, b.cost);
+        drawButton(b.getText(), b.x0, b.y0, b.x1, b.y1, b.getOwned(), b.getCost());
     }
 
     public void drawImage(Image Image, int x, int y, int srcX, int srcY, int srcWidth, int srcHeight) {

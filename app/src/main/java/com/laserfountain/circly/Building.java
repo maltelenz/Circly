@@ -1,9 +1,10 @@
 package com.laserfountain.circly;
 
-public class Building {
+public class Building extends BuyButton{
+
     public enum BuildingType {
-        FlatSeat,
-        AngledSeat
+        AutoTouch,
+        Rotator
     }
 
     private BuildingType btype;
@@ -11,15 +12,16 @@ public class Building {
     private double effect;
     private int cost;
 
-    public Building(BuildingType btype) {
+    public Building(BuildingType btype, int x0, int y0, int x1, int y1) {
+        super("", x0, y0, x1, y1);
         owned = 0;
         this.btype = btype;
         switch (btype) {
-            case FlatSeat:
+            case AutoTouch:
                 effect = 0.001;
                 cost = 500;
                 break;
-            case AngledSeat:
+            case Rotator:
                 effect = 0.03;
                 cost = 5000;
                 break;
@@ -27,16 +29,24 @@ public class Building {
     }
 
     public Building(BuildingType btype, int owned) {
-        this(btype);
+        this(btype, owned, 0, 0, 0, 0);
+    }
+
+    public Building(BuildingType btype, int owned, int x0, int y0, int x1, int y1) {
+        this(btype, x0, y0, x1, y1);
         this.owned = owned;
     }
 
-    public float buy(float currency) {
-        if (currency > getCost()) {
-            owned++;
-            return currency - getCost();
-        }
-        return currency;
+    public void setArea(int x0, int y0, int x1, int y1) {
+        this.x0 = x0;
+        this.y0 = y0;
+        this.x1 = x1;
+        this.y1 = y1;
+    }
+
+    @Override
+    public void increaseOwned() {
+        owned++;
     }
 
     public int getOwned() {
@@ -49,6 +59,11 @@ public class Building {
 
     public int getCost() {
         return (int) Math.round(Math.pow(owned, 1.9) + cost);
+    }
+
+    @Override
+    public String getText() {
+        return getTypeString();
     }
 
     public String getTypeString() {
