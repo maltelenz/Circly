@@ -15,6 +15,7 @@ public class ColorPalette {
     public static int circleOrange = Color.rgb(255, 138, 36);
     public static int circleYellow = Color.rgb(255, 237, 36);
     public static int circleTeal = Color.rgb(40, 191, 184);
+    public static int circleInactive = Color.rgb(190, 190, 190);
 
     public static int progressBackground = Color.argb(20, 199, 244, 100);
 

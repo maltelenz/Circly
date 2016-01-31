@@ -328,7 +328,6 @@ public class MainScreen extends Screen {
                 circlePainter.setColor(ColorPalette.circleTeal);
                 break;
         }
-
         g.drawNgon(
                 SCREEN_WIDTH / 2,
                 SCREEN_HEIGHT / 2.5,
@@ -364,7 +363,20 @@ public class MainScreen extends Screen {
     }
 
     private void drawArc(Graphics g, int color, int comp) {
+        arcPainter.setColor(ColorPalette.circleInactive);
+        int extraRadius =  2 * SMALL_CIRCLE_RADIUS * (comp + 2);
+        g.drawArc(
+                new RectF(
+                        SCREEN_WIDTH / 2 - CIRCLE_RADIUS - extraRadius,
+                        (int) Math.round(SCREEN_HEIGHT / 2.5 - CIRCLE_RADIUS - extraRadius),
+                        SCREEN_WIDTH / 2 + CIRCLE_RADIUS + extraRadius,
+                        (int) Math.round(SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + extraRadius)
+                ),
+                1,
+                arcPainter);
+
         float percent;
+        arcPainter.setColor(color);
         if (multiplier < comp) {
             return;
         } else if (multiplier > comp) {
@@ -373,8 +385,6 @@ public class MainScreen extends Screen {
             percent = ((float) touches) / MAX_TOUCHES;
         }
 
-        int extraRadius =  2 * SMALL_CIRCLE_RADIUS * (comp + 2);
-        arcPainter.setColor(color);
         g.drawArc(
                 new RectF(
                         SCREEN_WIDTH / 2 - CIRCLE_RADIUS - extraRadius,
