@@ -5,7 +5,8 @@ public class Building extends BuyButton{
     public enum BuildingType {
         AutoTouch,
         Rotator,
-        SuperSpin
+        SuperSpin,
+        TouchManiac
     }
 
     private BuildingType btype;
@@ -29,6 +30,10 @@ public class Building extends BuyButton{
             case SuperSpin:
                 effect = 0.9;
                 cost = 100000;
+                break;
+            case TouchManiac:
+                effect = 15;
+                cost = 50000000;
                 break;
         }
     }
@@ -63,7 +68,7 @@ public class Building extends BuyButton{
     }
 
     public int getCost() {
-        return (int) Math.round(Math.pow(owned, 1.9) + cost);
+        return (int) Math.round(Math.pow(owned, 1.1) * cost/100 + cost);
     }
 
     @Override
