@@ -122,7 +122,7 @@ public class Building extends BuyButton{
     }
 
     public boolean upgradePossible(float currency) {
-        if (upgrades < 10 && owned > (upgrades + 1) * 5) {
+        if (upgrades < 10 && owned >= (upgrades + 1) * 5) {
             return currency > getUpgradeCost();
         }
         return false;
