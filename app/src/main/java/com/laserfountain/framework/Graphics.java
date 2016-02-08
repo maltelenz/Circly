@@ -6,6 +6,7 @@ import android.graphics.RectF;
 
 import com.laserfountain.circly.ArcButton;
 import com.laserfountain.circly.BonusNGon;
+import com.laserfountain.circly.Building;
 import com.laserfountain.circly.Button;
 import com.laserfountain.circly.BuyButton;
 import com.laserfountain.circly.ImageButton;
@@ -61,7 +62,9 @@ public interface Graphics {
 
     void drawButton(Button b);
 
-    void drawBuyButton(BuyButton cornerUpgradeButton, float clicks);
+    void drawBuyButton(BuyButton buyButton, float clicks);
+
+    void drawBuildingButton(Building b, float clicks);
 
     void drawArcButton(ArcButton b);
 

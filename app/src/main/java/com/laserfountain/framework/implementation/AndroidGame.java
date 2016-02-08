@@ -174,6 +174,7 @@ public abstract class AndroidGame extends Activity implements Game {
         SharedPreferences.Editor editor = preferences.edit();
         for (Building b : buildings) {
             editor.putInt(b.getTypeString(), b.getOwned());
+            editor.putInt(b.getTypeString() + "Upgrade", b.getUpgrades());
         }
         editor.commit();
     }
@@ -183,7 +184,10 @@ public abstract class AndroidGame extends Activity implements Game {
         SharedPreferences preferences = getLevelPreferences();
         ArrayList<Building> buildings = new ArrayList<>();
         for (Building.BuildingType btype : Building.BuildingType.values()) {
-            buildings.add(new Building(btype, preferences.getInt(btype.name(), 0)));
+            buildings.add(new Building(
+                    btype,
+                    preferences.getInt(btype.name(), 0),
+                    preferences.getInt(btype.name() + "Upgrade", 0)));
         }
         return buildings;
     }

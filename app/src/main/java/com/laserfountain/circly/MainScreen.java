@@ -62,6 +62,7 @@ public class MainScreen extends Screen {
 
     private ArrayList<String> snacks;
     private float timeUntilNextSnack;
+    private int drawerHeight;
 
     public MainScreen(Game game, Context context) {
         super(game);
@@ -72,6 +73,7 @@ public class MainScreen extends Screen {
         SMALL_CIRCLE_RADIUS = game.scaleX(10);
         BONUS_NGON_RADIUS = game.scaleX(100);
         SNACK_HEIGHT = game.scaleY(144);
+
         touches = 1;
         multiplier = 1;
 
@@ -84,6 +86,7 @@ public class MainScreen extends Screen {
         int buildingsButtonWidth = game.scaleX(200);
         int buildingsButtonHeight = game.scaleY(120);
         buildingsHeight = game.scaleY(250);
+        drawerHeight = 4 * buildingsHeight;
 
         showBuildingsButton = new ArcButton("\u2303",
                 SCREEN_WIDTH / 2,
@@ -94,7 +97,7 @@ public class MainScreen extends Screen {
 
         hideBuildingsButton = new ArcButton("\u2304",
                 SCREEN_WIDTH / 2,
-                SCREEN_HEIGHT - 2 * buildingsHeight,
+                SCREEN_HEIGHT - drawerHeight,
                 buildingsButtonWidth,
                 buildingsButtonHeight
         );
@@ -102,9 +105,9 @@ public class MainScreen extends Screen {
         for (int i = 0; i < buildings.size(); i++) {
             buildings.get(i).setArea(
                     i * buildingsHeight,
-                    SCREEN_HEIGHT - 2 * buildingsHeight,
+                    SCREEN_HEIGHT - 3 * buildingsHeight,
                     (i + 1) * buildingsHeight,
-                    SCREEN_HEIGHT - buildingsHeight);
+                    SCREEN_HEIGHT - 2 * buildingsHeight);
         }
 
         cornerUpgrade = new Upgrade(
@@ -189,6 +192,11 @@ public class MainScreen extends Screen {
                     for (Building b : buildings) {
                         if (b.inBounds(event)) {
                             clicks = b.buy(clicks);
+                            updateExtra();
+                            buttonTriggered = true;
+                        }
+                        if (b.inUpgradeBounds(event)) {
+                            clicks = b.buyUpgrade(clicks);
                             updateExtra();
                             buttonTriggered = true;
                         }
@@ -280,11 +288,10 @@ public class MainScreen extends Screen {
         Graphics g = game.getGraphics();
         g.clearScreen(ColorPalette.background);
 
-        int intclicks = Math.round(clicks);
         DecimalFormatSymbols symbols = new DecimalFormatSymbols();
         symbols.setGroupingSeparator(' ');
         DecimalFormat df = new DecimalFormat("###,###", symbols);
-        g.drawString(df.format(intclicks), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 10);
+        g.drawString(df.format(clicks), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 10);
         df = new DecimalFormat("###,###.##", symbols);
         g.drawString(df.format(extra * 100) + "/s", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + game.scaleX(200));
         g.drawString("(+" + df.format(cornerEffect * 100) + "%)", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + game.scaleX(275), multiplierPaint);
@@ -331,9 +338,13 @@ public class MainScreen extends Screen {
 
         if (buildingsShown) {
             g.drawArcButton(hideBuildingsButton);
-            g.drawRect(0, SCREEN_HEIGHT - 2 * buildingsHeight, SCREEN_WIDTH, 2 * buildingsHeight, ColorPalette.drawer);
+            g.drawRect(0, SCREEN_HEIGHT - drawerHeight, SCREEN_WIDTH, drawerHeight, ColorPalette.drawer);
+
+            g.drawString(df.format(extra * 100) + "/s", SCREEN_WIDTH / 2, SCREEN_HEIGHT - 3 * buildingsHeight - game.scaleX(125));
+            g.drawString("(+" + df.format(cornerEffect * 100) + "%)", SCREEN_WIDTH / 2, SCREEN_HEIGHT - 3 * buildingsHeight - game.scaleX(50), multiplierPaint);
+
             for (Building b : buildings) {
-                g.drawBuyButton(b, clicks);
+                g.drawBuildingButton(b, clicks);
             }
             g.drawBuyButton(cornerUpgrade, clicks);
         } else {
@@ -397,7 +408,7 @@ public class MainScreen extends Screen {
     private void updateExtra() {
         extra = 0;
         for (Building b: buildings) {
-            extra += b.getEffect() * b.getOwned();
+            extra += b.getUpgradeEffect() * b.getEffect() * b.getOwned();
         }
         cornerEffect = (cornerUpgrade.getOwned() - 1) * 0.1;
         baseClick = 1 + cornerEffect;

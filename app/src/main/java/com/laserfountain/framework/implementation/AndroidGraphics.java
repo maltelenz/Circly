@@ -13,6 +13,7 @@ import android.graphics.Typeface;
 
 import com.laserfountain.circly.ArcButton;
 import com.laserfountain.circly.BonusNGon;
+import com.laserfountain.circly.Building;
 import com.laserfountain.circly.Button;
 import com.laserfountain.circly.BuyButton;
 import com.laserfountain.circly.ColorPalette;
@@ -266,7 +267,7 @@ public class AndroidGraphics implements Graphics {
         } else {
             rectanglePainter.setColor(ColorPalette.disabledButton);
         }
-        rectanglePainter.setShadowLayer(scale(10.0f), scale(2.0f), scale(2.0f), ColorPalette.buttonShadow);
+//        rectanglePainter.setShadowLayer(scale(10.0f), scale(2.0f), scale(2.0f), ColorPalette.buttonShadow);
         canvas.drawRect(x0, y0, x1, y1, rectanglePainter);
         DecimalFormatSymbols symbols = new DecimalFormatSymbols();
         symbols.setGroupingSeparator(' ');
@@ -284,6 +285,12 @@ public class AndroidGraphics implements Graphics {
     @Override
     public void drawBuyButton(BuyButton b, float clicks) {
         drawButton(b.getText(), b.x0, b.y0, b.x1, b.y1, b.getOwned(), b.getCost(), b.getCost() < clicks);
+    }
+
+    @Override
+    public void drawBuildingButton(Building b, float clicks) {
+        drawButton(b.getText(), b.x0, b.y0, b.x1, b.y1, b.getOwned(), b.getCost(), b.getCost() < clicks);
+        drawButton("Upgrade", b.ux0, b.uy0, b.ux1, b.uy1, b.getUpgrades(), b.getUpgradeCost(), b.upgradePossible(clicks));
     }
 
     @Override
