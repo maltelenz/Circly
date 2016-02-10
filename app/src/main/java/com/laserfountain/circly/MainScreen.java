@@ -20,6 +20,7 @@ public class MainScreen extends Screen {
     private static final float SNACK_TIME = 300;
     private static final float SUPERSPEED_TIME = 1000;
     private static final double SUPERSPEED_EFFECT = 8;
+    private static final double SUPERTOUCH_EFFECT = 30;
 
 
     private int SNACK_HEIGHT;
@@ -52,7 +53,8 @@ public class MainScreen extends Screen {
     private float timeUntilSave;
     private float timeLeftOnBonus;
     private boolean superSpeedActive;
-    private float timeLeftOnSuperSpeed;
+    private boolean superTouchActive;
+    private float timeLeftOnSuper;
     private float rotation;
     private double extra;
 
@@ -124,7 +126,8 @@ public class MainScreen extends Screen {
 
         bonusNGon = null;
         superSpeedActive = false;
-        timeLeftOnSuperSpeed = 0;
+        superTouchActive = false;
+        timeLeftOnSuper = 0;
 
         arcPainter = new Paint();
         arcPainter.setColor(ColorPalette.circleGreen);
@@ -169,29 +172,37 @@ public class MainScreen extends Screen {
             if (event.type == TouchEvent.TOUCH_DOWN) {
                 touchedsomething = true;
 
-                if (!buildingsShown && showBuildingsButton.inBounds(event)) {
-                    // Expand the buildings tab
-                    buildingsShown = true;
-                    buttonTriggered = true;
-                    continue;
-                }
-
                 if (bonusNGon != null && bonusNGon.inBounds(event)) {
                     bonusNGon = null;
                     Random randomGenerator = new Random();
                     int selector = randomGenerator.nextInt(100);
                     if (selector < 70) {
-                        double bonusClicks = extra * 10 * randomGenerator.nextInt(100);
+                        double bonusClicks = extra * 100 * randomGenerator.nextInt(100);
                         clicks += bonusClicks;
                         String text = Integer.toString((int) Math.round(bonusClicks)) + " bonus!";
                         addSnack(text);
-                    } else {
-                        superSpeedActive = true;
-                        timeLeftOnSuperSpeed = SUPERSPEED_TIME;
+                    } else if (selector < 85) {
+                        superTouchActive = true;
+                        superSpeedActive = false;
+                        timeLeftOnSuper = SUPERSPEED_TIME;
                         updateExtra();
-                        String text = "Super speed: Touches x " + NumberFormatter.formatDouble(SUPERSPEED_EFFECT) + "!";
+                        String text = "Super Touch: Touches x " + NumberFormatter.formatDouble(SUPERTOUCH_EFFECT) + "!";
+                        addSnack(text);
+                    } else {
+                        superTouchActive = false;
+                        superSpeedActive = true;
+                        timeLeftOnSuper = SUPERSPEED_TIME;
+                        updateExtra();
+                        String text = "Super speed: Auto touches x " + NumberFormatter.formatDouble(SUPERSPEED_EFFECT) + "!";
                         addSnack(text);
                     }
+                    buttonTriggered = true;
+                    continue;
+                }
+
+                if (!buildingsShown && showBuildingsButton.inBounds(event)) {
+                    // Expand the buildings tab
+                    buildingsShown = true;
                     buttonTriggered = true;
                     continue;
                 }
@@ -255,7 +266,7 @@ public class MainScreen extends Screen {
 
         if (bonusNGon == null) {
             Random randomGenerator = new Random();
-            if (randomGenerator.nextInt(10000) == 0) {
+            if (randomGenerator.nextInt(5000) == 0) {
                 // Show a new bonus ngon
                 bonusNGon = new BonusNGon(
                         BONUS_NGON_RADIUS + randomGenerator.nextInt(SCREEN_WIDTH - 2 * BONUS_NGON_RADIUS),
@@ -270,8 +281,9 @@ public class MainScreen extends Screen {
             }
         }
 
-        timeLeftOnSuperSpeed -= deltaTime;
-        if (timeLeftOnSuperSpeed < 0) {
+        timeLeftOnSuper -= deltaTime;
+        if (timeLeftOnSuper < 0) {
+            superTouchActive = false;
             superSpeedActive = false;
             updateExtra();
         }
@@ -306,7 +318,11 @@ public class MainScreen extends Screen {
 
     private void drawGame(float deltaTime) {
         Graphics g = game.getGraphics();
-        g.clearScreen(ColorPalette.background);
+        if (superSpeedActive) {
+            g.clearScreen(ColorPalette.bonus);
+        } else {
+            g.clearScreen(ColorPalette.background);
+        }
 
         g.drawString(NumberFormatter.formatDouble(clicks), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 10);
         g.drawString(NumberFormatter.formatDouble(extra * 100) + "/s", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + game.scaleX(200));
@@ -314,7 +330,7 @@ public class MainScreen extends Screen {
 
         rotation = (rotation + ((float) touches) / MAX_TOUCHES * deltaTime * 8) % 360;
 
-        if (superSpeedActive) {
+        if (superTouchActive) {
             circlePainter.setColor(ColorPalette.bonus);
         } else {
             switch (multiplier) {
@@ -353,10 +369,6 @@ public class MainScreen extends Screen {
         drawArc(g, ColorPalette.circleYellow, 4);
         drawArc(g, ColorPalette.circleTeal, 5);
 
-        if (bonusNGon != null) {
-            g.drawBonusNGon(bonusNGon, Math.max(cornerUpgrade.getOwned(), 3));
-        }
-
         if (buildingsShown) {
             g.drawArcButton(hideBuildingsButton);
             g.drawRect(0, SCREEN_HEIGHT - drawerHeight, SCREEN_WIDTH, drawerHeight, ColorPalette.drawer);
@@ -373,6 +385,10 @@ public class MainScreen extends Screen {
         }
 
         drawSnack(g, deltaTime);
+
+        if (bonusNGon != null) {
+            g.drawBonusNGon(bonusNGon, Math.max(cornerUpgrade.getOwned(), 3));
+        }
     }
 
     private void drawArc(Graphics g, int color, int comp) {
@@ -436,7 +452,9 @@ public class MainScreen extends Screen {
         extra = extra * baseClick;
         if (superSpeedActive) {
             extra = extra * SUPERSPEED_EFFECT;
-            baseClick = baseClick * SUPERSPEED_EFFECT;
+        }
+        if (superTouchActive) {
+            baseClick = baseClick * SUPERTOUCH_EFFECT;
         }
         saveGame();
     }

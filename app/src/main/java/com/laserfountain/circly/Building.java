@@ -34,15 +34,15 @@ public class Building extends BuyButton{
                 break;
             case Rotator:
                 effect = 0.03;
-                cost = 10000;
+                cost = 7500;
                 break;
             case SuperSpin:
                 effect = 0.9;
-                cost = 500000;
+                cost = 200000;
                 break;
             case TouchManiac:
                 effect = 30;
-                cost = 100000000;
+                cost = 80000000;
                 break;
         }
 
