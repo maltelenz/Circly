@@ -153,10 +153,10 @@ public abstract class AndroidGame extends Activity implements Game {
     }
 
     @Override
-    public void updatePoints(float points) {
+    public void updatePoints(double points) {
         SharedPreferences preferences = getLevelPreferences();
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putFloat(getString(R.string.points_achieved), points);
+        editor.putString(getString(R.string.points_achieved), Double.toString(points));
         editor.commit();
     }
 
@@ -199,8 +199,8 @@ public abstract class AndroidGame extends Activity implements Game {
     }
 
     @Override
-    public float getPoints() {
+    public double getPoints() {
         SharedPreferences preferences = getLevelPreferences();
-        return preferences.getFloat(getString(R.string.points_achieved), 0);
+        return Double.parseDouble(preferences.getString(getString(R.string.points_achieved), "0"));
     }
 }

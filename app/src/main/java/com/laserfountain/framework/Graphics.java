@@ -58,13 +58,13 @@ public interface Graphics {
 
     void drawButton(String text, int x0, int y0, int x1, int y1);
 
-    void drawButton(String text, int x0, int y0, int x1, int y1, int number, int cost, boolean enabled);
+    void drawButton(String text, int x0, int y0, int x1, int y1, int number, double cost, boolean enabled);
 
     void drawButton(Button b);
 
-    void drawBuyButton(BuyButton buyButton, float clicks);
+    void drawBuyButton(BuyButton buyButton, double clicks);
 
-    void drawBuildingButton(Building b, float clicks);
+    void drawBuildingButton(Building b, double clicks);
 
     void drawArcButton(ArcButton b);
 

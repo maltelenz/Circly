@@ -34,15 +34,15 @@ public class Building extends BuyButton{
                 break;
             case Rotator:
                 effect = 0.03;
-                cost = 5000;
+                cost = 10000;
                 break;
             case SuperSpin:
                 effect = 0.9;
-                cost = 100000;
+                cost = 500000;
                 break;
             case TouchManiac:
                 effect = 30;
-                cost = 40000000;
+                cost = 100000000;
                 break;
         }
 
@@ -78,10 +78,10 @@ public class Building extends BuyButton{
         return event.x > ux0 && event.x < ux1 && event.y > uy0 && event.y < uy1;
     }
 
-    public float buyUpgrade(float currency) {
+    public double buyUpgrade(double currency) {
         if (upgradePossible(currency)) {
             // We need to calculate cost before increasing number, or it will become more expensive.
-            float currencyAfter = currency - getUpgradeCost();
+            double currencyAfter = currency - getUpgradeCost();
             increaseUpgrades();
             return currencyAfter;
         }
@@ -110,18 +110,18 @@ public class Building extends BuyButton{
     }
 
     public double getUpgradeEffect() {
-        return Math.pow((upgrades * 0.02 + 1), 12);
+        return Math.pow((upgrades * 0.02 + 1), 8);
     }
 
-    public int getCost() {
-        return (int) Math.round(Math.pow(owned, 1.1) * cost/100 + cost);
+    public double getCost() {
+        return Math.round(Math.pow(owned, 2.1) * cost/100 + cost);
     }
 
-    public int getUpgradeCost() {
-        return (int) Math.round(Math.pow(upgrades + 1, 2.1) * cost/300 + cost);
+    public double getUpgradeCost() {
+        return Math.round(Math.pow(upgrades + 1, 2.1) * cost/300 + cost);
     }
 
-    public boolean upgradePossible(float currency) {
+    public boolean upgradePossible(double currency) {
         if (upgrades < 10 && owned >= (upgrades + 1) * 5) {
             return currency > getUpgradeCost();
         }

@@ -46,7 +46,7 @@ public class Upgrade extends BuyButton{
         return owned;
     }
 
-    public int getCost() {
+    public double getCost() {
         return (int) Math.round(Math.pow(owned, 3) + cost);
     }
 

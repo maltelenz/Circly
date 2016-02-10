@@ -31,13 +31,13 @@ public interface Game {
 
     float scale(float in);
 
-    void updatePoints(float points);
+    void updatePoints(double points);
 
     void updateCorners(int corners);
 
     void updateBuildings(ArrayList<Building> buildings);
 
-    float getPoints();
+    double getPoints();
 
     ArrayList<Building> getBuildings();
 

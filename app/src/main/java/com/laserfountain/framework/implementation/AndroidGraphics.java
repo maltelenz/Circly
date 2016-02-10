@@ -18,11 +18,10 @@ import com.laserfountain.circly.Button;
 import com.laserfountain.circly.BuyButton;
 import com.laserfountain.circly.ColorPalette;
 import com.laserfountain.circly.ImageButton;
+import com.laserfountain.circly.NumberFormatter;
 import com.laserfountain.framework.Graphics;
 import com.laserfountain.framework.Image;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -260,20 +259,16 @@ public class AndroidGraphics implements Graphics {
     }
 
     @Override
-    public void drawButton(String text, int x0, int y0, int x1, int y1, int number, int cost, boolean enabled) {
+    public void drawButton(String text, int x0, int y0, int x1, int y1, int number, double cost, boolean enabled) {
         Paint rectanglePainter = new Paint();
         if (enabled) {
             rectanglePainter.setColor(ColorPalette.button);
         } else {
             rectanglePainter.setColor(ColorPalette.disabledButton);
         }
-//        rectanglePainter.setShadowLayer(scale(10.0f), scale(2.0f), scale(2.0f), ColorPalette.buttonShadow);
         canvas.drawRect(x0, y0, x1, y1, rectanglePainter);
-        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
-        symbols.setGroupingSeparator(' ');
-        DecimalFormat df = new DecimalFormat("###,###", symbols);
-        drawString(df.format(number), x0 + (x1 - x0) / 2, y0 + (y1 - y0) / 2, lightTextPaint);
-        drawString(df.format(cost), x0 + (x1 - x0) / 2, y0 + (y1 - y0) * 9 / 10, mediumLightTextPaint);
+        drawString(NumberFormatter.formatInt(number), x0 + (x1 - x0) / 2, y0 + (y1 - y0) / 2, lightTextPaint);
+        drawString(NumberFormatter.formatDouble(cost), x0 + (x1 - x0) / 2, y0 + (y1 - y0) * 9 / 10, mediumLightTextPaint);
         drawString(text, x0 + (x1 - x0) / 2, y0 + (y1 - y0) / 10, smallLightTextPaint);
     }
 
@@ -283,12 +278,12 @@ public class AndroidGraphics implements Graphics {
     }
 
     @Override
-    public void drawBuyButton(BuyButton b, float clicks) {
+    public void drawBuyButton(BuyButton b, double clicks) {
         drawButton(b.getText(), b.x0, b.y0, b.x1, b.y1, b.getOwned(), b.getCost(), b.getCost() < clicks);
     }
 
     @Override
-    public void drawBuildingButton(Building b, float clicks) {
+    public void drawBuildingButton(Building b, double clicks) {
         drawButton(b.getText(), b.x0, b.y0, b.x1, b.y1, b.getOwned(), b.getCost(), b.getCost() < clicks);
         drawButton("Upgrade", b.ux0, b.uy0, b.ux1, b.uy1, b.getUpgrades(), b.getUpgradeCost(), b.upgradePossible(clicks));
     }

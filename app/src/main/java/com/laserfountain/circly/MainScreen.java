@@ -9,8 +9,6 @@ import com.laserfountain.framework.Game;
 import com.laserfountain.framework.Graphics;
 import com.laserfountain.framework.Input.TouchEvent;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -43,7 +41,7 @@ public class MainScreen extends Screen {
     private int touches;
     private int multiplier;
 
-    private float clicks;
+    private double clicks;
     private ArrayList<Building> buildings;
 
     private boolean buildingsShown;
@@ -288,13 +286,9 @@ public class MainScreen extends Screen {
         Graphics g = game.getGraphics();
         g.clearScreen(ColorPalette.background);
 
-        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
-        symbols.setGroupingSeparator(' ');
-        DecimalFormat df = new DecimalFormat("###,###", symbols);
-        g.drawString(df.format(clicks), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 10);
-        df = new DecimalFormat("###,###.##", symbols);
-        g.drawString(df.format(extra * 100) + "/s", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + game.scaleX(200));
-        g.drawString("(+" + df.format(cornerEffect * 100) + "%)", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + game.scaleX(275), multiplierPaint);
+        g.drawString(NumberFormatter.formatDouble(clicks), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 10);
+        g.drawString(NumberFormatter.formatDouble(extra * 100) + "/s", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + game.scaleX(200));
+        g.drawString("(+" + NumberFormatter.formatDouble(cornerEffect * 100) + "%)", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + game.scaleX(275), multiplierPaint);
 
         rotation = (rotation + ((float) touches) / MAX_TOUCHES * deltaTime * 8) % 360;
 
@@ -324,7 +318,7 @@ public class MainScreen extends Screen {
                 rotation
         );
 
-        g.drawStringCentered("+" + df.format(multiplier * baseClick));
+        g.drawStringCentered("+" + NumberFormatter.formatDouble(multiplier * baseClick));
 
         drawArc(g, ColorPalette.circlePurple, 1);
         drawArc(g, ColorPalette.circleRed, 2);
@@ -340,8 +334,8 @@ public class MainScreen extends Screen {
             g.drawArcButton(hideBuildingsButton);
             g.drawRect(0, SCREEN_HEIGHT - drawerHeight, SCREEN_WIDTH, drawerHeight, ColorPalette.drawer);
 
-            g.drawString(df.format(extra * 100) + "/s", SCREEN_WIDTH / 2, SCREEN_HEIGHT - 3 * buildingsHeight - game.scaleX(125));
-            g.drawString("(+" + df.format(cornerEffect * 100) + "%)", SCREEN_WIDTH / 2, SCREEN_HEIGHT - 3 * buildingsHeight - game.scaleX(50), multiplierPaint);
+            g.drawString(NumberFormatter.formatDouble(extra * 100) + "/s", SCREEN_WIDTH / 2, SCREEN_HEIGHT - 3 * buildingsHeight - game.scaleX(125));
+            g.drawString("(+" + NumberFormatter.formatDouble(cornerEffect * 100) + "%)", SCREEN_WIDTH / 2, SCREEN_HEIGHT - 3 * buildingsHeight - game.scaleX(50), multiplierPaint);
 
             for (Building b : buildings) {
                 g.drawBuildingButton(b, clicks);
