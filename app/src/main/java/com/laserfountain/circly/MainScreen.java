@@ -18,6 +18,9 @@ public class MainScreen extends Screen {
     private static final int TOUCH_DIFF = 8;
     private static final int BONUS_NGON_TIME = 500;
     private static final float SNACK_TIME = 300;
+    private static final float SUPERSPEED_TIME = 1000;
+    private static final double SUPERSPEED_EFFECT = 8;
+
 
     private int SNACK_HEIGHT;
     private int SMALL_CIRCLE_RADIUS;
@@ -48,6 +51,8 @@ public class MainScreen extends Screen {
     private float timeUntilShrink;
     private float timeUntilSave;
     private float timeLeftOnBonus;
+    private boolean superSpeedActive;
+    private float timeLeftOnSuperSpeed;
     private float rotation;
     private double extra;
 
@@ -118,6 +123,8 @@ public class MainScreen extends Screen {
         );
 
         bonusNGon = null;
+        superSpeedActive = false;
+        timeLeftOnSuperSpeed = 0;
 
         arcPainter = new Paint();
         arcPainter.setColor(ColorPalette.circleGreen);
@@ -172,10 +179,19 @@ public class MainScreen extends Screen {
                 if (bonusNGon != null && bonusNGon.inBounds(event)) {
                     bonusNGon = null;
                     Random randomGenerator = new Random();
-                    double bonusClicks = extra * 100 * randomGenerator.nextInt(100);
-                    clicks += bonusClicks;
-                    String text = Integer.toString((int) Math.round(bonusClicks)) + " bonus!";
-                    addSnack(text);
+                    int selector = randomGenerator.nextInt(100);
+                    if (selector < 70) {
+                        double bonusClicks = extra * 10 * randomGenerator.nextInt(100);
+                        clicks += bonusClicks;
+                        String text = Integer.toString((int) Math.round(bonusClicks)) + " bonus!";
+                        addSnack(text);
+                    } else {
+                        superSpeedActive = true;
+                        timeLeftOnSuperSpeed = SUPERSPEED_TIME;
+                        updateExtra();
+                        String text = "Super speed: Touches x " + NumberFormatter.formatDouble(SUPERSPEED_EFFECT) + "!";
+                        addSnack(text);
+                    }
                     buttonTriggered = true;
                     continue;
                 }
@@ -254,6 +270,12 @@ public class MainScreen extends Screen {
             }
         }
 
+        timeLeftOnSuperSpeed -= deltaTime;
+        if (timeLeftOnSuperSpeed < 0) {
+            superSpeedActive = false;
+            updateExtra();
+        }
+
         timeUntilSave -= deltaTime;
         if (timeUntilSave < 0) {
             timeUntilSave = SAVE_INTERVAL;
@@ -292,23 +314,28 @@ public class MainScreen extends Screen {
 
         rotation = (rotation + ((float) touches) / MAX_TOUCHES * deltaTime * 8) % 360;
 
-        switch (multiplier) {
-            case 1:
-                circlePainter.setColor(ColorPalette.circlePurple);
-                break;
-            case 2:
-                circlePainter.setColor(ColorPalette.circleRed);
-                break;
-            case 3:
-                circlePainter.setColor(ColorPalette.circleOrange);
-                break;
-            case 4:
-                circlePainter.setColor(ColorPalette.circleYellow);
-                break;
-            case 5:
-                circlePainter.setColor(ColorPalette.circleTeal);
-                break;
+        if (superSpeedActive) {
+            circlePainter.setColor(ColorPalette.bonus);
+        } else {
+            switch (multiplier) {
+                case 1:
+                    circlePainter.setColor(ColorPalette.circlePurple);
+                    break;
+                case 2:
+                    circlePainter.setColor(ColorPalette.circleRed);
+                    break;
+                case 3:
+                    circlePainter.setColor(ColorPalette.circleOrange);
+                    break;
+                case 4:
+                    circlePainter.setColor(ColorPalette.circleYellow);
+                    break;
+                case 5:
+                    circlePainter.setColor(ColorPalette.circleTeal);
+                    break;
+            }
         }
+
         g.drawNgon(
                 SCREEN_WIDTH / 2,
                 SCREEN_HEIGHT / 2.5,
@@ -407,6 +434,10 @@ public class MainScreen extends Screen {
         cornerEffect = (cornerUpgrade.getOwned() - 1) * 0.1;
         baseClick = 1 + cornerEffect;
         extra = extra * baseClick;
+        if (superSpeedActive) {
+            extra = extra * SUPERSPEED_EFFECT;
+            baseClick = baseClick * SUPERSPEED_EFFECT;
+        }
         saveGame();
     }
 
