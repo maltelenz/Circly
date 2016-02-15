@@ -169,6 +169,22 @@ public abstract class AndroidGame extends Activity implements Game {
     }
 
     @Override
+    public void updateBonuses(int corners) {
+        SharedPreferences preferences = getLevelPreferences();
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt(getString(R.string.bonuses_caught), corners);
+        editor.commit();
+    }
+
+    @Override
+    public void updateTimePlayed(double timePlayed) {
+        SharedPreferences preferences = getLevelPreferences();
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt(getString(R.string.time_played), (int) Math.round(timePlayed));
+        editor.commit();
+    }
+
+    @Override
     public void updateBuildings(ArrayList<Building> buildings) {
         SharedPreferences preferences = getLevelPreferences();
         SharedPreferences.Editor editor = preferences.edit();
@@ -196,6 +212,18 @@ public abstract class AndroidGame extends Activity implements Game {
     public int getCorners() {
         SharedPreferences preferences = getLevelPreferences();
         return preferences.getInt(getString(R.string.corners_bought), 1);
+    }
+
+    @Override
+    public int getBonuses() {
+        SharedPreferences preferences = getLevelPreferences();
+        return preferences.getInt(getString(R.string.bonuses_caught), 0);
+    }
+
+    @Override
+    public double getTimePlayed() {
+        SharedPreferences preferences = getLevelPreferences();
+        return preferences.getInt(getString(R.string.time_played), 0);
     }
 
     @Override

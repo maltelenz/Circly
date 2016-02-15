@@ -66,7 +66,7 @@ public interface Graphics {
 
     void drawBuildingButton(Building b, double clicks);
 
-    void drawArcButton(ArcButton b);
+    void drawArcButton(ArcButton b, int drawerSize);
 
     int getWidth();
 

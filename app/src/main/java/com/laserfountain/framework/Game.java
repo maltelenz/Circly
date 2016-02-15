@@ -35,13 +35,21 @@ public interface Game {
 
     void updateCorners(int corners);
 
+    void updateBonuses(int corners);
+
     void updateBuildings(ArrayList<Building> buildings);
+
+    void updateTimePlayed(double timePlayed);
 
     double getPoints();
 
     ArrayList<Building> getBuildings();
 
     int getCorners();
+
+    int getBonuses();
+
+    double getTimePlayed();
 
     /**
      * Locks the screen in portrait mode.

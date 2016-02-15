@@ -271,7 +271,7 @@ public class AndroidGraphics implements Graphics {
         drawString(NumberFormatter.formatInt(number), x0 + (x1 - x0) / 2, y0 + (y1 - y0) / 2, lightTextPaint);
         String costString;
         if (cost > 0) {
-            costString = NumberFormatter.formatDouble(cost);
+            costString = NumberFormatter.formatDoubleCompact(cost);
         } else {
             costString = "?";
         }
@@ -300,12 +300,12 @@ public class AndroidGraphics implements Graphics {
     }
 
     @Override
-    public void drawArcButton(ArcButton b) {
+    public void drawArcButton(ArcButton b, int drawerSize) {
         Paint arcPainter = new Paint();
         arcPainter.setColor(ColorPalette.button);
         arcPainter.setShadowLayer(scale(10.0f), scale(2.0f), scale(2.0f), ColorPalette.buttonShadow);
-        drawPartialArc(new RectF(b.x - b.xradius, b.y - b.yradius, b.x + b.xradius, b.y + b.yradius), -0.25f, 0.5f, arcPainter);
-        drawString(b.text, b.x, b.y - b.yradius/2, lightTextPaint);
+        drawPartialArc(new RectF(b.x - b.xradius, b.y - b.yradius - drawerSize, b.x + b.xradius, b.y + b.yradius - drawerSize), -0.25f, 0.5f, arcPainter);
+        drawString(b.text, b.x, b.y - b.yradius/2 - drawerSize, lightTextPaint);
     }
 
     public void drawImage(Image Image, int x, int y, int srcX, int srcY, int srcWidth, int srcHeight) {

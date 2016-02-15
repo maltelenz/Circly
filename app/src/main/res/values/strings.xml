@@ -4,4 +4,6 @@
     <string name="preference_file_key">com.laserfountain.circly.preference</string>
     <string name="points_achieved">PointsAchieved</string>
     <string name="corners_bought">CornersBought</string>
+    <string name="bonuses_caught">bonusesCaught</string>
+    <string name="time_played">timePlayed</string>
 </resources>

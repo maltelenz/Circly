@@ -36,6 +36,9 @@ public class MainScreen extends Screen {
     private final ArcButton showBuildingsButton;
     private final ArcButton hideBuildingsButton;
 
+    private final ArcButton showStatsButton;
+    private final ArcButton hideStatsButton;
+
     private final Upgrade cornerUpgrade;
 
     private BonusNGon bonusNGon;
@@ -46,9 +49,14 @@ public class MainScreen extends Screen {
     private int multiplier;
 
     private double clicks;
+    private int bonusesCaught;
+    private double timePlayed;
+
     private ArrayList<Building> buildings;
 
     private boolean buildingsShown;
+    private boolean statsShown;
+
     private float timeUntilShrink;
     private float timeUntilSave;
     private float timeLeftOnBonus;
@@ -64,10 +72,16 @@ public class MainScreen extends Screen {
     private double cornerEffect;
     private Paint multiplierPaint;
     private Paint snackTextPaint;
+    private Paint statsTextPaint;
 
     private ArrayList<String> snacks;
     private float timeUntilNextSnack;
-    private int drawerHeight;
+
+    private int buildingDrawerHeight;
+    private int statsDrawerHeight;
+
+    int drawerHeight;
+
 
     public MainScreen(Game game, Context context) {
         super(game);
@@ -86,25 +100,45 @@ public class MainScreen extends Screen {
 
         buildings = game.getBuildings();
 
-        buildingsShown = false;
+        bonusesCaught = game.getBonuses();
+        timePlayed = game.getTimePlayed();
 
-        int buildingsButtonWidth = game.scaleX(200);
-        int buildingsButtonHeight = game.scaleY(120);
+        buildingsShown = false;
+        statsShown = false;
+
+        int drawerButtonRadius = SCREEN_WIDTH / 6;
+        int drawerButtonHeight = game.scaleY(120);
         buildingsHeight = game.scaleY(250);
-        drawerHeight = 4 * buildingsHeight;
+        buildingDrawerHeight = 4 * buildingsHeight;
+
+        statsDrawerHeight = game.scaleY(500);
 
         showBuildingsButton = new ArcButton("\u2303",
                 SCREEN_WIDTH / 2,
                 SCREEN_HEIGHT,
-                buildingsButtonWidth,
-                buildingsButtonHeight
+                drawerButtonRadius,
+                drawerButtonHeight
         );
 
         hideBuildingsButton = new ArcButton("\u2304",
                 SCREEN_WIDTH / 2,
-                SCREEN_HEIGHT - drawerHeight,
-                buildingsButtonWidth,
-                buildingsButtonHeight
+                SCREEN_HEIGHT,
+                drawerButtonRadius,
+                drawerButtonHeight
+        );
+
+        showStatsButton = new ArcButton("\u2303",
+                SCREEN_WIDTH * 5 / 6,
+                SCREEN_HEIGHT,
+                drawerButtonRadius,
+                drawerButtonHeight
+        );
+
+        hideStatsButton = new ArcButton("\u2304",
+                SCREEN_WIDTH * 5 / 6,
+                SCREEN_HEIGHT,
+                drawerButtonRadius,
+                drawerButtonHeight
         );
 
         for (int i = 0; i < buildings.size(); i++) {
@@ -156,6 +190,11 @@ public class MainScreen extends Screen {
         snackTextPaint.setColor(ColorPalette.lightText);
         snackTextPaint.setTypeface(Typeface.DEFAULT_BOLD);
 
+        statsTextPaint = new Paint();
+        statsTextPaint.set(snackTextPaint);
+        statsTextPaint.setTextAlign(Paint.Align.LEFT);
+        statsTextPaint.setColor(ColorPalette.darkText);
+
         snacks = new ArrayList<>();
 
         updateExtra();
@@ -174,6 +213,7 @@ public class MainScreen extends Screen {
 
                 if (bonusNGon != null && bonusNGon.inBounds(event)) {
                     bonusNGon = null;
+                    bonusesCaught++;
                     Random randomGenerator = new Random();
                     int selector = randomGenerator.nextInt(100);
                     if (selector < 70) {
@@ -200,15 +240,24 @@ public class MainScreen extends Screen {
                     continue;
                 }
 
-                if (!buildingsShown && showBuildingsButton.inBounds(event)) {
+                if (!buildingsShown && showBuildingsButton.inBounds(event, drawerHeight)) {
                     // Expand the buildings tab
                     buildingsShown = true;
+                    statsShown = false;
+                    buttonTriggered = true;
+                    continue;
+                }
+
+                if (!statsShown && showStatsButton.inBounds(event, drawerHeight)) {
+                    // Expand the stats tab
+                    buildingsShown = false;
+                    statsShown = true;
                     buttonTriggered = true;
                     continue;
                 }
 
                 if (buildingsShown) {
-                    if (hideBuildingsButton.inBounds(event)) {
+                    if (hideBuildingsButton.inBounds(event, drawerHeight)) {
                         // Hide the buildings tab
                         buildingsShown = false;
                         buttonTriggered = true;
@@ -234,6 +283,15 @@ public class MainScreen extends Screen {
                     }
                 }
 
+                if (statsShown) {
+                    if (hideStatsButton.inBounds(event, drawerHeight)) {
+                        // Hide the stats tab
+                        statsShown = false;
+                        buttonTriggered = true;
+                        continue;
+                    }
+                }
+
                 clicks += multiplier * baseClick;
                 touches += TOUCH_DIFF;
                 if (touches >= MAX_TOUCHES) {
@@ -249,6 +307,15 @@ public class MainScreen extends Screen {
 
         if (!buttonTriggered && touchedsomething) {
             buildingsShown = false;
+            statsShown = false;
+        }
+
+        if (buildingsShown) {
+            drawerHeight = buildingDrawerHeight;
+        } else if (statsShown) {
+            drawerHeight = statsDrawerHeight;
+        } else {
+            drawerHeight = 0;
         }
 
         timeUntilShrink -= deltaTime;
@@ -295,7 +362,7 @@ public class MainScreen extends Screen {
         }
 
         clicks += extra * deltaTime;
-
+        timePlayed += deltaTime;
     }
 
     private void addSnack(String text) {
@@ -309,6 +376,8 @@ public class MainScreen extends Screen {
         game.updatePoints(clicks);
         game.updateBuildings(buildings);
         game.updateCorners(cornerUpgrade.getOwned());
+        game.updateBonuses(bonusesCaught);
+        game.updateTimePlayed(timePlayed);
     }
 
     @Override
@@ -370,9 +439,9 @@ public class MainScreen extends Screen {
         drawArc(g, ColorPalette.circleTeal, 5);
 
         if (buildingsShown) {
-            g.drawArcButton(hideBuildingsButton);
-            g.drawRect(0, SCREEN_HEIGHT - drawerHeight, SCREEN_WIDTH, drawerHeight, ColorPalette.drawer);
-            g.drawRect(0, SCREEN_HEIGHT - drawerHeight, SCREEN_WIDTH, buildingsHeight, ColorPalette.box);
+            g.drawArcButton(hideBuildingsButton, drawerHeight);
+            g.drawRect(0, SCREEN_HEIGHT - buildingDrawerHeight, SCREEN_WIDTH, buildingDrawerHeight, ColorPalette.drawer);
+            g.drawRect(0, SCREEN_HEIGHT - buildingDrawerHeight, SCREEN_WIDTH, buildingsHeight, ColorPalette.box);
 
             g.drawString(NumberFormatter.formatDouble(extra * 100) + "/s", SCREEN_WIDTH / 2, SCREEN_HEIGHT - 3 * buildingsHeight - game.scaleX(125));
             g.drawString("(+" + NumberFormatter.formatDouble(cornerEffect * 100) + "%)", SCREEN_WIDTH / 2, SCREEN_HEIGHT - 3 * buildingsHeight - game.scaleX(50), multiplierPaint);
@@ -382,7 +451,36 @@ public class MainScreen extends Screen {
             }
             g.drawBuyButton(cornerUpgrade, clicks);
         } else {
-            g.drawArcButton(showBuildingsButton);
+            g.drawArcButton(showBuildingsButton, drawerHeight);
+        }
+
+        if (statsShown) {
+            g.drawArcButton(hideStatsButton, drawerHeight);
+            g.drawRect(0, SCREEN_HEIGHT - statsDrawerHeight, SCREEN_WIDTH, statsDrawerHeight, ColorPalette.box);
+
+            g.drawString("Touches per second: " + NumberFormatter.formatDouble(extra * 100) + "/s",
+                    game.scaleX(25),
+                    SCREEN_HEIGHT - statsDrawerHeight + game.scaleX(50),
+                    statsTextPaint);
+            g.drawString("Multiplier: " + NumberFormatter.formatDouble(cornerEffect * 100) + "%",
+                    game.scaleX(25),
+                    SCREEN_HEIGHT - statsDrawerHeight + game.scaleX(100),
+                    statsTextPaint);
+            g.drawString("Edges: " + NumberFormatter.formatInt(cornerUpgrade.getOwned()),
+                    game.scaleX(25),
+                    SCREEN_HEIGHT - statsDrawerHeight + game.scaleX(150),
+                    statsTextPaint);
+            g.drawString("Bonuses caught: " + NumberFormatter.formatInt(bonusesCaught),
+                    game.scaleX(25),
+                    SCREEN_HEIGHT - statsDrawerHeight + game.scaleX(200),
+                    statsTextPaint);
+            g.drawString("Time played: " + NumberFormatter.formatDoubleTime(timePlayed/100),
+                    game.scaleX(25),
+                    SCREEN_HEIGHT - statsDrawerHeight + game.scaleX(250),
+                    statsTextPaint);
+
+        } else {
+            g.drawArcButton(showStatsButton, drawerHeight);
         }
 
         drawSnack(g, deltaTime);
