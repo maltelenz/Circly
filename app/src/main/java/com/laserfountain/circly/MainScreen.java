@@ -109,10 +109,10 @@ public class MainScreen extends Screen {
 
         for (int i = 0; i < buildings.size(); i++) {
             buildings.get(i).setArea(
-                    i * buildingsHeight,
-                    SCREEN_HEIGHT - 3 * buildingsHeight,
-                    (i + 1) * buildingsHeight,
-                    SCREEN_HEIGHT - 2 * buildingsHeight);
+                    i * buildingsHeight + 2,
+                    SCREEN_HEIGHT - 3 * buildingsHeight + 2,
+                    (i + 1) * buildingsHeight - 2,
+                    SCREEN_HEIGHT - 2 * buildingsHeight - 2);
         }
 
         cornerUpgrade = new Upgrade(
@@ -372,6 +372,7 @@ public class MainScreen extends Screen {
         if (buildingsShown) {
             g.drawArcButton(hideBuildingsButton);
             g.drawRect(0, SCREEN_HEIGHT - drawerHeight, SCREEN_WIDTH, drawerHeight, ColorPalette.drawer);
+            g.drawRect(0, SCREEN_HEIGHT - drawerHeight, SCREEN_WIDTH, buildingsHeight, ColorPalette.box);
 
             g.drawString(NumberFormatter.formatDouble(extra * 100) + "/s", SCREEN_WIDTH / 2, SCREEN_HEIGHT - 3 * buildingsHeight - game.scaleX(125));
             g.drawString("(+" + NumberFormatter.formatDouble(cornerEffect * 100) + "%)", SCREEN_WIDTH / 2, SCREEN_HEIGHT - 3 * buildingsHeight - game.scaleX(50), multiplierPaint);

@@ -67,10 +67,10 @@ public class NumberFormatter {
         n = n / 1000000;
         int base = 0;
         while (base < 40) {
-            n = n / 1000;
             if (n < 1000) {
                 return df.format(n) + " " + names[base];
             }
+            n = n / 1000;
             base++;
         }
         return "NaN";

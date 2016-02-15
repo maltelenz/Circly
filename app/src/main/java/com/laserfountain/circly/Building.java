@@ -114,7 +114,7 @@ public class Building extends BuyButton{
     }
 
     public double getCost() {
-        return Math.round(Math.pow(owned, 2.1) * cost/100 + cost);
+        return Math.round(Math.pow(owned, 2.1) * cost / 100 + cost);
     }
 
     public double getUpgradeCost() {
@@ -122,10 +122,11 @@ public class Building extends BuyButton{
     }
 
     public boolean upgradePossible(double currency) {
-        if (upgrades < 10 && owned >= (upgrades + 1) * 5) {
-            return currency > getUpgradeCost();
-        }
-        return false;
+        return upgradeAllowed() && currency > getUpgradeCost();
+    }
+
+    public boolean upgradeAllowed() {
+        return upgrades < 10 && owned >= (upgrades + 1) * 5;
     }
 
     @Override

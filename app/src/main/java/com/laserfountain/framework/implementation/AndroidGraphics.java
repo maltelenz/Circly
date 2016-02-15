@@ -267,8 +267,15 @@ public class AndroidGraphics implements Graphics {
             rectanglePainter.setColor(ColorPalette.disabledButton);
         }
         canvas.drawRect(x0, y0, x1, y1, rectanglePainter);
+
         drawString(NumberFormatter.formatInt(number), x0 + (x1 - x0) / 2, y0 + (y1 - y0) / 2, lightTextPaint);
-        drawString(NumberFormatter.formatDouble(cost), x0 + (x1 - x0) / 2, y0 + (y1 - y0) * 9 / 10, mediumLightTextPaint);
+        String costString;
+        if (cost > 0) {
+            costString = NumberFormatter.formatDouble(cost);
+        } else {
+            costString = "?";
+        }
+        drawString(costString, x0 + (x1 - x0) / 2, y0 + (y1 - y0) * 9 / 10, mediumLightTextPaint);
         drawString(text, x0 + (x1 - x0) / 2, y0 + (y1 - y0) / 10, smallLightTextPaint);
     }
 
@@ -285,7 +292,11 @@ public class AndroidGraphics implements Graphics {
     @Override
     public void drawBuildingButton(Building b, double clicks) {
         drawButton(b.getText(), b.x0, b.y0, b.x1, b.y1, b.getOwned(), b.getCost(), b.getCost() < clicks);
-        drawButton("Upgrade", b.ux0, b.uy0, b.ux1, b.uy1, b.getUpgrades(), b.getUpgradeCost(), b.upgradePossible(clicks));
+        if (b.upgradeAllowed()) {
+            drawButton("Upgrade", b.ux0, b.uy0, b.ux1, b.uy1, b.getUpgrades(), b.getUpgradeCost(), b.upgradePossible(clicks));
+        } else {
+            drawButton("Upgrade", b.ux0, b.uy0, b.ux1, b.uy1, b.getUpgrades(), -1, false);
+        }
     }
 
     @Override

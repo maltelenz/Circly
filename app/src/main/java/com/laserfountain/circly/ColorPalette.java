@@ -6,8 +6,10 @@ public class ColorPalette {
     public static int background = Color.rgb(212, 212, 212);
     public static int button = Color.argb(230, 11, 176, 222);
     public static int disabledButton = Color.argb(230, 138, 138, 138);
+    public static int disallowedButton = Color.argb(230, 204, 151, 164);
 
-    public static int drawer = Color.argb(200, 11, 176, 222);
+    public static int drawer = Color.rgb(11, 176, 222);
+    public static int box = Color.argb(200, 255, 255, 255);
 
     public static int circleGreen = Color.rgb(169, 222, 51);
 
@@ -25,8 +27,6 @@ public class ColorPalette {
     public static int lightText = Color.WHITE;
 
     public static int gridLines = Color.rgb(20, 20, 20);
-
-    public static int box = Color.rgb(70, 70, 70);
 
     public static int laser = Color.rgb(245, 166, 39);
 
