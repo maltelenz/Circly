@@ -8,10 +8,8 @@ public class ArcButton {
     public int y;
     public int xradius;
     public int yradius;
-    public String text;
 
-    public ArcButton(String text, int x, int y, int xradius, int yradius) {
-        this.text = text;
+    public ArcButton(int x, int y, int xradius, int yradius) {
         this.x = x;
         this.y = y;
         this.xradius = xradius;

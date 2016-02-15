@@ -34,10 +34,7 @@ public class MainScreen extends Screen {
     private static final float SAVE_INTERVAL = 500;
 
     private final ArcButton showBuildingsButton;
-    private final ArcButton hideBuildingsButton;
-
     private final ArcButton showStatsButton;
-    private final ArcButton hideStatsButton;
 
     private final Upgrade cornerUpgrade;
 
@@ -113,28 +110,14 @@ public class MainScreen extends Screen {
 
         statsDrawerHeight = game.scaleY(500);
 
-        showBuildingsButton = new ArcButton("\u2303",
+        showBuildingsButton = new ArcButton(
                 SCREEN_WIDTH / 2,
                 SCREEN_HEIGHT,
                 drawerButtonRadius,
                 drawerButtonHeight
         );
 
-        hideBuildingsButton = new ArcButton("\u2304",
-                SCREEN_WIDTH / 2,
-                SCREEN_HEIGHT,
-                drawerButtonRadius,
-                drawerButtonHeight
-        );
-
-        showStatsButton = new ArcButton("\u2303",
-                SCREEN_WIDTH * 5 / 6,
-                SCREEN_HEIGHT,
-                drawerButtonRadius,
-                drawerButtonHeight
-        );
-
-        hideStatsButton = new ArcButton("\u2304",
+        showStatsButton = new ArcButton(
                 SCREEN_WIDTH * 5 / 6,
                 SCREEN_HEIGHT,
                 drawerButtonRadius,
@@ -219,7 +202,7 @@ public class MainScreen extends Screen {
                     if (selector < 70) {
                         double bonusClicks = extra * 100 * randomGenerator.nextInt(100);
                         clicks += bonusClicks;
-                        String text = Integer.toString((int) Math.round(bonusClicks)) + " bonus!";
+                        String text = NumberFormatter.formatDouble(bonusClicks) + " bonus!";
                         addSnack(text);
                     } else if (selector < 85) {
                         superTouchActive = true;
@@ -257,7 +240,7 @@ public class MainScreen extends Screen {
                 }
 
                 if (buildingsShown) {
-                    if (hideBuildingsButton.inBounds(event, drawerHeight)) {
+                    if (showBuildingsButton.inBounds(event, drawerHeight)) {
                         // Hide the buildings tab
                         buildingsShown = false;
                         buttonTriggered = true;
@@ -284,7 +267,7 @@ public class MainScreen extends Screen {
                 }
 
                 if (statsShown) {
-                    if (hideStatsButton.inBounds(event, drawerHeight)) {
+                    if (showStatsButton.inBounds(event, drawerHeight)) {
                         // Hide the stats tab
                         statsShown = false;
                         buttonTriggered = true;
@@ -438,10 +421,13 @@ public class MainScreen extends Screen {
         drawArc(g, ColorPalette.circleYellow, 4);
         drawArc(g, ColorPalette.circleTeal, 5);
 
+        g.drawArcButton(showBuildingsButton, drawerHeight, buildingsShown);
+        g.drawArcButton(showStatsButton, drawerHeight, statsShown);
+
         if (buildingsShown) {
-            g.drawArcButton(hideBuildingsButton, drawerHeight);
             g.drawRect(0, SCREEN_HEIGHT - buildingDrawerHeight, SCREEN_WIDTH, buildingDrawerHeight, ColorPalette.drawer);
             g.drawRect(0, SCREEN_HEIGHT - buildingDrawerHeight, SCREEN_WIDTH, buildingsHeight, ColorPalette.box);
+            g.drawLine(0, SCREEN_HEIGHT - buildingDrawerHeight, SCREEN_WIDTH, SCREEN_HEIGHT - buildingDrawerHeight, ColorPalette.black);
 
             g.drawString(NumberFormatter.formatDouble(extra * 100) + "/s", SCREEN_WIDTH / 2, SCREEN_HEIGHT - 3 * buildingsHeight - game.scaleX(125));
             g.drawString("(+" + NumberFormatter.formatDouble(cornerEffect * 100) + "%)", SCREEN_WIDTH / 2, SCREEN_HEIGHT - 3 * buildingsHeight - game.scaleX(50), multiplierPaint);
@@ -450,13 +436,11 @@ public class MainScreen extends Screen {
                 g.drawBuildingButton(b, clicks);
             }
             g.drawBuyButton(cornerUpgrade, clicks);
-        } else {
-            g.drawArcButton(showBuildingsButton, drawerHeight);
         }
 
         if (statsShown) {
-            g.drawArcButton(hideStatsButton, drawerHeight);
             g.drawRect(0, SCREEN_HEIGHT - statsDrawerHeight, SCREEN_WIDTH, statsDrawerHeight, ColorPalette.box);
+            g.drawLine(0, SCREEN_HEIGHT - statsDrawerHeight, SCREEN_WIDTH, SCREEN_HEIGHT - statsDrawerHeight, ColorPalette.black);
 
             g.drawString("Touches per second: " + NumberFormatter.formatDouble(extra * 100) + "/s",
                     game.scaleX(25),
@@ -479,8 +463,6 @@ public class MainScreen extends Screen {
                     SCREEN_HEIGHT - statsDrawerHeight + game.scaleX(250),
                     statsTextPaint);
 
-        } else {
-            g.drawArcButton(showStatsButton, drawerHeight);
         }
 
         drawSnack(g, deltaTime);

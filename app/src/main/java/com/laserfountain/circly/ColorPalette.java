@@ -5,11 +5,11 @@ import android.graphics.Color;
 public class ColorPalette {
     public static int background = Color.rgb(212, 212, 212);
     public static int button = Color.argb(230, 11, 176, 222);
-    public static int disabledButton = Color.argb(230, 138, 138, 138);
-    public static int disallowedButton = Color.argb(230, 204, 151, 164);
+    public static int disabledButton = Color.argb(255, 138, 138, 138);
+    public static int inactiveButton = Color.argb(200, 11, 176, 222);
 
     public static int drawer = Color.rgb(11, 176, 222);
-    public static int box = Color.argb(200, 255, 255, 255);
+    public static int box = Color.argb(255, 255, 255, 255);
 
     public static int circleGreen = Color.rgb(169, 222, 51);
 
@@ -32,7 +32,7 @@ public class ColorPalette {
 
     public static int oopsie = Color.rgb(214, 128, 36);
 
-    public static int yellow = Color.rgb(255, 234, 79);
+    public static int black = Color.rgb(0, 0, 0);
 
     public static int snackBackground = Color.rgb(50, 50, 50);
 
