@@ -3,7 +3,8 @@ package com.laserfountain.circly;
 public class Upgrade extends BuyButton{
 
     public enum UpgradeType {
-        Edges
+        Edges,
+        TouchPercent
     }
 
     private UpgradeType utype;
@@ -18,6 +19,10 @@ public class Upgrade extends BuyButton{
             case Edges:
                 cost = 150;
                 max = 150;
+                break;
+            case TouchPercent:
+                cost = 2000;
+                max = 5;
                 break;
         }
     }

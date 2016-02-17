@@ -67,6 +67,7 @@ public class MainScreen extends Screen {
     private double extra;
 
     private double baseClick;
+    private double perTouch;
     private double cornerEffect;
 
     private Paint arcPainter;
@@ -281,7 +282,7 @@ public class MainScreen extends Screen {
                     }
                 }
 
-                clicks += multiplier * baseClick;
+                clicks += multiplier * perTouch;
                 touches += TOUCH_DIFF;
                 if (touches >= MAX_TOUCHES) {
                     if (multiplier != 5) {
@@ -482,7 +483,7 @@ public class MainScreen extends Screen {
             );
         }
 
-        g.drawStringCentered("+" + NumberFormatter.formatDouble(multiplier * baseClick));
+        g.drawStringCentered("+" + NumberFormatter.formatDouble(multiplier * perTouch));
 
         drawArc(g, ColorPalette.circlePurple, 1);
         drawArc(g, ColorPalette.circleRed, 2);
@@ -547,9 +548,9 @@ public class MainScreen extends Screen {
         }
     }
 
-    public Upgrade getEdgeUpgrade() {
+    public Upgrade getUpgrade(Upgrade.UpgradeType type) {
         for (Upgrade b: upgrades) {
-            if (b.getUpgradeType() == Upgrade.UpgradeType.Edges) {
+            if (b.getUpgradeType() == type) {
                 return b;
             }
         }
@@ -612,16 +613,17 @@ public class MainScreen extends Screen {
         for (Building b: buildings) {
             extra += b.getUpgradeEffect() * b.getEffect() * b.getOwned();
         }
-        edgesOwned = getEdgeUpgrade().getOwned() + 1;
-        maxEdges = getEdgeUpgrade().getMax();
+        edgesOwned = getUpgrade(Upgrade.UpgradeType.Edges).getOwned() + 1;
+        maxEdges = getUpgrade(Upgrade.UpgradeType.Edges).getMax();
         cornerEffect = (edgesOwned - 1) * 0.1;
         baseClick = 1 + cornerEffect;
         extra = extra * baseClick;
         if (superSpeedActive) {
             extra = extra * SUPERSPEED_EFFECT;
         }
+        perTouch = baseClick + getUpgrade(Upgrade.UpgradeType.TouchPercent).getOwned() * extra;
         if (superTouchActive) {
-            baseClick = baseClick * SUPERTOUCH_EFFECT;
+            perTouch = perTouch * SUPERTOUCH_EFFECT;
         }
         saveGame();
     }
