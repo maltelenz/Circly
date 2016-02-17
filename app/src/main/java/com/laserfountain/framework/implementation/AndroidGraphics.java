@@ -164,12 +164,14 @@ public class AndroidGraphics implements Graphics {
 
     @Override
     public void drawNgon(double x, double y, double radius, int n, Paint paint, float rotation) {
-        if (n == 1) {
-            canvas.save();
-            canvas.rotate(rotation, (float) x, (float) y);
-            drawCircle(x + radius / 2, y, Math.round(radius / 4), paint);
-            canvas.restore();
+        if (n == 0) {
             return;
+        } else if (n == 1) {
+                canvas.save();
+                canvas.rotate(rotation, (float) x, (float) y);
+                drawCircle(x + radius / 2, y, Math.round(radius / 4), paint);
+                canvas.restore();
+                return;
         } else if (n == 2) {
             canvas.save();
             canvas.rotate(rotation, (float) x, (float) y);

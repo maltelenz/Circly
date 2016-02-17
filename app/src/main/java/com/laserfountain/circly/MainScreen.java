@@ -613,9 +613,9 @@ public class MainScreen extends Screen {
         for (Building b: buildings) {
             extra += b.getUpgradeEffect() * b.getEffect() * b.getOwned();
         }
-        edgesOwned = getUpgrade(Upgrade.UpgradeType.Edges).getOwned() + 1;
+        edgesOwned = getUpgrade(Upgrade.UpgradeType.Edges).getOwned();
         maxEdges = getUpgrade(Upgrade.UpgradeType.Edges).getMax();
-        cornerEffect = (edgesOwned - 1) * 0.1;
+        cornerEffect = edgesOwned * 0.1;
         baseClick = 1 + cornerEffect;
         extra = extra * baseClick;
         if (superSpeedActive) {
