@@ -288,9 +288,9 @@ public class AndroidGraphics implements Graphics {
     public void drawBuyButton(BuyButton b, double clicks) {
         if (b.buyAllowed()) {
             drawButton(b.getText(), b.x0, b.y0, b.x1, b.y1, b.getOwned(), b.getCost(), b.buyPossible(clicks));
-        } else {
-            drawButton(b.getText(), b.x0, b.y0, b.x1, b.y1, b.getOwned(), -2, false);
-        }
+        }/* else {
+            // Do not draw disallowed upgrades
+        }*/
     }
 
     @Override
