@@ -4,6 +4,7 @@ public class Upgrade extends BuyButton{
 
     public enum UpgradeType {
         Edges,
+        AutoRotator,
         TouchPercent
     }
 
@@ -21,6 +22,11 @@ public class Upgrade extends BuyButton{
                 cost = 150;
                 max = 150;
                 ownedExponent = 3;
+                break;
+            case AutoRotator:
+                cost = 4000;
+                max = 5;
+                ownedExponent = 5;
                 break;
             case TouchPercent:
                 cost = 7000;

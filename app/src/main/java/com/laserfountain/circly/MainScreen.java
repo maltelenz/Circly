@@ -43,6 +43,7 @@ public class MainScreen extends Screen {
 
     private int touches;
     private int multiplier;
+    private int baseMultiplier;
 
     private double clicks;
     private int bonusesCaught;
@@ -94,7 +95,6 @@ public class MainScreen extends Screen {
         initializeDimensions();
 
         touches = 1;
-        multiplier = 1;
 
         initializeFromSave();
 
@@ -128,6 +128,7 @@ public class MainScreen extends Screen {
         snacks = new ArrayList<>();
 
         updateExtra();
+        multiplier = baseMultiplier + 1;
     }
 
     private void initializeDimensions() {
@@ -283,28 +284,37 @@ public class MainScreen extends Screen {
                 }
 
                 clicks += multiplier * perTouch;
-                touches += TOUCH_DIFF;
-                if (touches >= MAX_TOUCHES) {
-                    if (multiplier != 5) {
-                        multiplier++;
-                        touches -= MAX_TOUCHES;
-                    } else {
-                        touches = MAX_TOUCHES;
+
+                if (baseMultiplier != 5) {
+                    touches += TOUCH_DIFF;
+                    if (touches >= MAX_TOUCHES) {
+                        if (multiplier < 5) {
+                            multiplier++;
+                            touches -= MAX_TOUCHES;
+                        } else {
+                            touches = MAX_TOUCHES;
+                        }
                     }
                 }
             }
         }
 
-        timeUntilShrink -= deltaTime;
-        if (timeUntilShrink < 0) {
-            timeUntilShrink = SHRINK_INTERVAL;
-            if (touches <= 0) {
-                if (multiplier != 1) {
-                    touches = MAX_TOUCHES;
-                    multiplier = Math.max(multiplier - 1, 1);
+        if (baseMultiplier == 5) {
+            // Fully upgraded rotational circles
+            touches = MAX_TOUCHES;
+            multiplier = baseMultiplier + 1;
+        } else {
+            timeUntilShrink -= deltaTime;
+            if (timeUntilShrink < 0) {
+                timeUntilShrink = SHRINK_INTERVAL;
+                if (touches <= 0) {
+                    if (multiplier > baseMultiplier + 1) {
+                        touches = MAX_TOUCHES;
+                        multiplier = Math.max(multiplier - 1, baseMultiplier + 1);
+                    }
+                } else {
+                    touches = Math.round(Math.max(touches - ((float) TOUCH_DIFF) / 10, 0));
                 }
-            } else {
-                touches = Math.round(Math.max(touches - ((float)TOUCH_DIFF)/10, 0));
             }
         }
 
@@ -441,7 +451,7 @@ public class MainScreen extends Screen {
                 multiplierPaint
         );
 
-        rotation = (rotation + ((float) touches) / MAX_TOUCHES * deltaTime * 800) % 360;
+        rotation = (rotation + ((float) touches) / MAX_TOUCHES * deltaTime * 400) % 360;
 
         if (superTouchActive) {
             circlePaint.setColor(ColorPalette.bonus);
@@ -615,6 +625,8 @@ public class MainScreen extends Screen {
         }
         edgesOwned = getUpgrade(Upgrade.UpgradeType.Edges).getOwned();
         maxEdges = getUpgrade(Upgrade.UpgradeType.Edges).getMax();
+        baseMultiplier = getUpgrade(Upgrade.UpgradeType.AutoRotator).getOwned();
+        multiplier = Math.max(multiplier, baseMultiplier + 1);
         cornerEffect = edgesOwned * 0.1;
         baseClick = 1 + cornerEffect;
         extra = extra * baseClick;
