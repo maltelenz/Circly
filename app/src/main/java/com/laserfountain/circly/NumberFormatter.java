@@ -80,14 +80,11 @@ public class NumberFormatter {
         n = n / 1000000;
         int base = 0;
         while (base < 40) {
-            if (n < 10) {
+            if (n < 100) {
                 return threeDecimals.format(n) + " " + names[base];
             }
-            if (n < 100) {
-                return twoDecimals.format(n) + " " + names[base];
-            }
             if (n < 1000) {
-                return oneDecimal.format(n) + " " + names[base];
+                return twoDecimals.format(n) + " " + names[base];
             }
             n = n / 1000;
             base++;
