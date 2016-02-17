@@ -22,7 +22,6 @@ public class MainScreen extends Screen {
     private static final double SUPERSPEED_EFFECT = 8;
     private static final double SUPERTOUCH_EFFECT = 30;
 
-
     private int SNACK_HEIGHT;
     private int SMALL_CIRCLE_RADIUS;
     private int BONUS_NGON_RADIUS;
@@ -33,14 +32,14 @@ public class MainScreen extends Screen {
     private static final float SHRINK_INTERVAL = 5;
     private static final float SAVE_INTERVAL = 500;
 
-    private final ArcButton showUpgradesButton;
-    private final ArcButton showBuildingsButton;
-    private final ArcButton showStatsButton;
+    private ArcButton showUpgradesButton;
+    private ArcButton showBuildingsButton;
+    private ArcButton showStatsButton;
 
     private BonusNGon bonusNGon;
 
-    private final int buyButtonHeight;
-    private final int drawerBoxHeight;
+    private int buyButtonHeight;
+    private int drawerBoxHeight;
 
     private int touches;
     private int multiplier;
@@ -61,16 +60,17 @@ public class MainScreen extends Screen {
     private float timeUntilShrink;
     private float timeUntilSave;
     private float timeLeftOnBonus;
+    private float timeLeftOnSuper;
     private boolean superSpeedActive;
     private boolean superTouchActive;
-    private float timeLeftOnSuper;
     private float rotation;
     private double extra;
 
-    Paint arcPainter;
-    private final Paint circlePainter;
     private double baseClick;
     private double cornerEffect;
+
+    private Paint arcPainter;
+    private Paint circlePaint;
     private Paint multiplierPaint;
     private Paint snackTextPaint;
     private Paint statsTextPaint;
@@ -82,60 +82,24 @@ public class MainScreen extends Screen {
     private int buildingDrawerHeight;
     private int statsDrawerHeight;
 
-    int drawerHeight;
+    private int drawerHeight;
+
+    private Context context;
 
     public MainScreen(Game game, Context context) {
         super(game);
-        SCREEN_WIDTH = game.getGraphics().getWidth();
-        SCREEN_HEIGHT = game.getGraphics().getHeight();
+        this.context = context;
 
-        CIRCLE_RADIUS = game.scaleX(320);
-        SMALL_CIRCLE_RADIUS = game.scaleX(10);
-        BONUS_NGON_RADIUS = game.scaleX(100);
-        SNACK_HEIGHT = game.scaleY(144);
+        initializeDimensions();
 
         touches = 1;
         multiplier = 1;
 
-        clicks = game.getPoints();
-
-        buildings = game.getBuildings();
-        upgrades = game.getUpgrades();
-
-        bonusesCaught = game.getBonuses();
-        timePlayed = game.getTimePlayed();
+        initializeFromSave();
 
         hideDrawer();
 
-        int drawerButtonRadius = SCREEN_WIDTH / 6;
-        int drawerButtonHeight = game.scaleY(120);
-        buyButtonHeight = game.scaleY(250);
-        drawerBoxHeight = game.scaleY(250);
-        upgradeDrawerHeight = drawerBoxHeight + 2 * buyButtonHeight;
-        buildingDrawerHeight = drawerBoxHeight + 2 * buyButtonHeight;
-
-        statsDrawerHeight = drawerBoxHeight + game.scaleY(500);
-
-        showUpgradesButton = new ArcButton(
-                SCREEN_WIDTH / 6,
-                SCREEN_HEIGHT,
-                drawerButtonRadius,
-                drawerButtonHeight
-        );
-
-        showBuildingsButton = new ArcButton(
-                SCREEN_WIDTH / 2,
-                SCREEN_HEIGHT,
-                drawerButtonRadius,
-                drawerButtonHeight
-        );
-
-        showStatsButton = new ArcButton(
-                SCREEN_WIDTH * 5 / 6,
-                SCREEN_HEIGHT,
-                drawerButtonRadius,
-                drawerButtonHeight
-        );
+        initializeDrawerButtons();
 
         for (int i = 0; i < buildings.size(); i++) {
             buildings.get(i).setArea(
@@ -158,15 +122,66 @@ public class MainScreen extends Screen {
         superTouchActive = false;
         timeLeftOnSuper = 0;
 
+        initializePainters();
+
+        snacks = new ArrayList<>();
+
+        updateExtra();
+    }
+
+    private void initializeDimensions() {
+        SCREEN_WIDTH = game.getGraphics().getWidth();
+        SCREEN_HEIGHT = game.getGraphics().getHeight();
+
+        CIRCLE_RADIUS = game.scaleX(320);
+        SMALL_CIRCLE_RADIUS = game.scaleX(10);
+        BONUS_NGON_RADIUS = game.scaleX(100);
+        SNACK_HEIGHT = game.scaleY(144);
+
+        buyButtonHeight = game.scaleY(250);
+        drawerBoxHeight = game.scaleY(250);
+
+        upgradeDrawerHeight = drawerBoxHeight + 2 * buyButtonHeight;
+        buildingDrawerHeight = drawerBoxHeight + 2 * buyButtonHeight;
+        statsDrawerHeight = drawerBoxHeight + game.scaleY(500);
+    }
+
+    private void initializeDrawerButtons() {
+        int drawerButtonRadius = SCREEN_WIDTH / 6;
+        int drawerButtonHeight = game.scaleY(120);
+
+        showUpgradesButton = new ArcButton(
+                SCREEN_WIDTH / 6,
+                SCREEN_HEIGHT,
+                drawerButtonRadius,
+                drawerButtonHeight
+        );
+
+        showBuildingsButton = new ArcButton(
+                SCREEN_WIDTH / 2,
+                SCREEN_HEIGHT,
+                drawerButtonRadius,
+                drawerButtonHeight
+        );
+
+        showStatsButton = new ArcButton(
+                SCREEN_WIDTH * 5 / 6,
+                SCREEN_HEIGHT,
+                drawerButtonRadius,
+                drawerButtonHeight
+        );
+    }
+
+    private void initializePainters() {
         arcPainter = new Paint();
         arcPainter.setColor(ColorPalette.circleGreen);
         arcPainter.setStyle(Paint.Style.STROKE);
         arcPainter.setStrokeWidth(10);
         arcPainter.setAntiAlias(true);
 
-        circlePainter = new Paint();
-        circlePainter.set(arcPainter);
-        circlePainter.setStyle(Paint.Style.FILL);
+        circlePaint = new Paint();
+        circlePaint.set(arcPainter);
+        circlePaint.setStyle(Paint.Style.FILL);
 
         this.multiplierPaint = new Paint();
 
@@ -189,15 +204,20 @@ public class MainScreen extends Screen {
         statsTextPaint.set(snackTextPaint);
         statsTextPaint.setTextAlign(Paint.Align.LEFT);
         statsTextPaint.setColor(ColorPalette.darkText);
+    }
 
-        snacks = new ArrayList<>();
+    private void initializeFromSave() {
+        clicks = game.getPoints();
 
-        updateExtra();
+        buildings = game.getBuildings();
+        upgrades = game.getUpgrades();
+
+        bonusesCaught = game.getBonuses();
+        timePlayed = game.getTimePlayed();
     }
 
     @Override
     public void update(float deltaTime) {
-        boolean buttonTriggered = false;
         List<TouchEvent> touchEvents = game.getInput().getTouchEvents();
         int len = touchEvents.size();
         for (int i = 0; i < len; i++) {
@@ -206,44 +226,37 @@ public class MainScreen extends Screen {
 
                 if (bonusNGon != null && bonusNGon.inBounds(event)) {
                     activateBonus();
-                    buttonTriggered = true;
                     continue;
                 }
 
                 if (!upgradesShown && showUpgradesButton.inBounds(event, drawerHeight)) {
                     showUpgradeDrawer();
-                    buttonTriggered = true;
                     continue;
                 }
 
                 if (!buildingsShown && showBuildingsButton.inBounds(event, drawerHeight)) {
                     showBuildingDrawer();
-                    buttonTriggered = true;
                     continue;
                 }
 
                 if (!statsShown && showStatsButton.inBounds(event, drawerHeight)) {
                     showStatsDrawer();
-                    buttonTriggered = true;
                     continue;
                 }
 
                 if (buildingsShown) {
                     if (showBuildingsButton.inBounds(event, drawerHeight)) {
                         hideDrawer();
-                        buttonTriggered = true;
                         continue;
                     }
                     for (Building b : buildings) {
                         if (b.inBounds(event)) {
                             clicks = b.buy(clicks);
                             updateExtra();
-                            buttonTriggered = true;
                         }
                         if (b.inUpgradeBounds(event)) {
                             clicks = b.buyUpgrade(clicks);
                             updateExtra();
-                            buttonTriggered = true;
                         }
                     }
                 }
@@ -251,14 +264,12 @@ public class MainScreen extends Screen {
                 if (upgradesShown) {
                     if (showUpgradesButton.inBounds(event, drawerHeight)) {
                         hideDrawer();
-                        buttonTriggered = true;
                         continue;
                     }
                     for (Upgrade b : upgrades) {
                         if (b.inBounds(event)) {
                             clicks = b.buy(clicks);
                             updateExtra();
-                            buttonTriggered = true;
                         }
                     }
                 }
@@ -266,7 +277,6 @@ public class MainScreen extends Screen {
                 if (statsShown) {
                     if (showStatsButton.inBounds(event, drawerHeight)) {
                         hideDrawer();
-                        buttonTriggered = true;
                         continue;
                     }
                 }
@@ -364,21 +374,24 @@ public class MainScreen extends Screen {
         if (selector < 70) {
             double bonusClicks = extra * 100 * randomGenerator.nextInt(100);
             clicks += bonusClicks;
-            String text = NumberFormatter.formatDouble(bonusClicks) + " bonus!";
+            String text = NumberFormatter.formatDouble(bonusClicks) + " " +
+                    context.getString(R.string.bonus_exclamation);
             addSnack(text);
         } else if (selector < 85) {
             superTouchActive = true;
             superSpeedActive = false;
             timeLeftOnSuper = SUPERSPEED_TIME;
             updateExtra();
-            String text = "Super Touch: Touches x " + NumberFormatter.formatDouble(SUPERTOUCH_EFFECT) + "!";
+            String text = context.getString(R.string.super_touch) + " " +
+                    NumberFormatter.formatDouble(SUPERTOUCH_EFFECT) + context.getString(R.string.exclamation);
             addSnack(text);
         } else {
             superTouchActive = false;
             superSpeedActive = true;
             timeLeftOnSuper = SUPERSPEED_TIME;
             updateExtra();
-            String text = "Super speed: Auto touches x " + NumberFormatter.formatDouble(SUPERSPEED_EFFECT) + "!";
+            String text = context.getString(R.string.super_speed) + " " +
+                    NumberFormatter.formatDouble(SUPERSPEED_EFFECT) + context.getString(R.string.exclamation);
             addSnack(text);
         }
     }
@@ -412,29 +425,41 @@ public class MainScreen extends Screen {
         }
 
         g.drawString(NumberFormatter.formatDouble(clicks), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 10);
-        g.drawString(NumberFormatter.formatDouble(extra * 100) + "/s", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + game.scaleX(200));
-        g.drawString("(+" + NumberFormatter.formatDouble(cornerEffect * 100) + "%)", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + game.scaleX(275), multiplierPaint);
+        g.drawString(
+                NumberFormatter.formatDouble(extra * 100) +
+                        context.getString(R.string.per_second),
+                SCREEN_WIDTH / 2,
+                SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + game.scaleX(200)
+        );
+        g.drawString(
+                context.getString(R.string.start_paren_plus) +
+                        NumberFormatter.formatDouble(cornerEffect * 100) +
+                        context.getString(R.string.percent_end_paren),
+                SCREEN_WIDTH / 2,
+                SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + game.scaleX(275),
+                multiplierPaint
+        );
 
         rotation = (rotation + ((float) touches) / MAX_TOUCHES * deltaTime * 8) % 360;
 
         if (superTouchActive) {
-            circlePainter.setColor(ColorPalette.bonus);
+            circlePaint.setColor(ColorPalette.bonus);
         } else {
             switch (multiplier) {
                 case 1:
-                    circlePainter.setColor(ColorPalette.circlePurple);
+                    circlePaint.setColor(ColorPalette.circlePurple);
                     break;
                 case 2:
-                    circlePainter.setColor(ColorPalette.circleRed);
+                    circlePaint.setColor(ColorPalette.circleRed);
                     break;
                 case 3:
-                    circlePainter.setColor(ColorPalette.circleOrange);
+                    circlePaint.setColor(ColorPalette.circleOrange);
                     break;
                 case 4:
-                    circlePainter.setColor(ColorPalette.circleYellow);
+                    circlePaint.setColor(ColorPalette.circleYellow);
                     break;
                 case 5:
-                    circlePainter.setColor(ColorPalette.circleTeal);
+                    circlePaint.setColor(ColorPalette.circleTeal);
                     break;
             }
         }
@@ -444,7 +469,7 @@ public class MainScreen extends Screen {
                     SCREEN_WIDTH / 2,
                     SCREEN_HEIGHT / 2.5,
                     CIRCLE_RADIUS,
-                    circlePainter
+                    circlePaint
             );
         } else {
             g.drawNgon(
@@ -452,7 +477,7 @@ public class MainScreen extends Screen {
                     SCREEN_HEIGHT / 2.5,
                     CIRCLE_RADIUS,
                     edgesOwned,
-                    circlePainter,
+                    circlePaint,
                     rotation
             );
         }
@@ -473,8 +498,20 @@ public class MainScreen extends Screen {
         g.drawRect(0, SCREEN_HEIGHT - drawerHeight, SCREEN_WIDTH, drawerBoxHeight, ColorPalette.box);
         g.drawLine(0, SCREEN_HEIGHT - drawerHeight, SCREEN_WIDTH, SCREEN_HEIGHT - drawerHeight, ColorPalette.black);
 
-        g.drawString(NumberFormatter.formatDouble(extra * 100) + "/s", SCREEN_WIDTH / 2, SCREEN_HEIGHT - drawerHeight + game.scaleY(100));
-        g.drawString("(+" + NumberFormatter.formatDouble(cornerEffect * 100) + "%)", SCREEN_WIDTH / 2, SCREEN_HEIGHT - drawerHeight + game.scaleY(175), multiplierPaint);
+        g.drawString(
+                NumberFormatter.formatDouble(extra * 100) +
+                        context.getString(R.string.per_second),
+                SCREEN_WIDTH / 2,
+                SCREEN_HEIGHT - drawerHeight + game.scaleY(100)
+        );
+        g.drawString(
+                context.getString(R.string.start_paren_plus) +
+                        NumberFormatter.formatDouble(cornerEffect * 100) +
+                        context.getString(R.string.percent_end_paren),
+                SCREEN_WIDTH / 2,
+                SCREEN_HEIGHT - drawerHeight + game.scaleY(175),
+                multiplierPaint
+        );
 
         if (buildingsShown) {
             for (Building b : buildings) {
@@ -489,15 +526,15 @@ public class MainScreen extends Screen {
         }
 
         if (statsShown) {
-            g.drawString("Edges: " + NumberFormatter.formatInt(edgesOwned),
+            g.drawString(context.getString(R.string.edges_colon) + " " + NumberFormatter.formatInt(edgesOwned),
                     game.scaleX(25),
                     SCREEN_HEIGHT - statsDrawerHeight + drawerBoxHeight + game.scaleX(50),
                     statsTextPaint);
-            g.drawString("Bonuses caught: " + NumberFormatter.formatInt(bonusesCaught),
+            g.drawString(context.getString(R.string.bonuses_caught_colon) + " " + NumberFormatter.formatInt(bonusesCaught),
                     game.scaleX(25),
                     SCREEN_HEIGHT - statsDrawerHeight + drawerBoxHeight + game.scaleX(100),
                     statsTextPaint);
-            g.drawString("Time played: " + NumberFormatter.formatDoubleTime(timePlayed/100),
+            g.drawString(context.getString(R.string.time_played_colon) + " " + NumberFormatter.formatDoubleTime(timePlayed/100),
                     game.scaleX(25),
                     SCREEN_HEIGHT - statsDrawerHeight + drawerBoxHeight + game.scaleX(150),
                     statsTextPaint);
