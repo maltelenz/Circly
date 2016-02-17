@@ -10,6 +10,7 @@ public class Upgrade extends BuyButton{
     private UpgradeType utype;
     private int cost;
     private int max;
+    private int ownedExponent;
 
     public Upgrade(UpgradeType utype, int x0, int y0, int x1, int y1) {
         super("", x0, y0, x1, y1);
@@ -19,10 +20,12 @@ public class Upgrade extends BuyButton{
             case Edges:
                 cost = 150;
                 max = 150;
+                ownedExponent = 3;
                 break;
             case TouchPercent:
-                cost = 2000;
+                cost = 7000;
                 max = 5;
+                ownedExponent = 10;
                 break;
         }
     }
@@ -48,7 +51,7 @@ public class Upgrade extends BuyButton{
     }
 
     public double getCost() {
-        return (int) Math.round(Math.pow(owned, 3) + cost);
+        return (int) Math.round(Math.pow((double) owned, ownedExponent) + cost);
     }
 
     @Override
