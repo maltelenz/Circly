@@ -28,19 +28,19 @@ public class Building extends BuyButton{
         this.btype = btype;
         switch (btype) {
             case AutoTouch:
-                effect = 0.001;
+                effect = 0.1;
                 cost = 500;
                 break;
             case Rotator:
-                effect = 0.03;
+                effect = 3;
                 cost = 7500;
                 break;
             case SuperSpin:
-                effect = 0.9;
+                effect = 90;
                 cost = 200000;
                 break;
             case TouchManiac:
-                effect = 30;
+                effect = 3000;
                 cost = 80000000;
                 break;
         }

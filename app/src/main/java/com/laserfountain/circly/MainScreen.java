@@ -16,9 +16,9 @@ import java.util.Random;
 public class MainScreen extends Screen {
     private static final int MAX_TOUCHES = 360;
     private static final int TOUCH_DIFF = 8;
-    private static final int BONUS_NGON_TIME = 500;
-    private static final float SNACK_TIME = 300;
-    private static final float SUPERSPEED_TIME = 1000;
+    private static final int BONUS_NGON_TIME = 5;
+    private static final float SNACK_TIME = 3;
+    private static final float SUPERSPEED_TIME = 10;
     private static final double SUPERSPEED_EFFECT = 8;
     private static final double SUPERTOUCH_EFFECT = 30;
 
@@ -29,8 +29,8 @@ public class MainScreen extends Screen {
     private int SCREEN_HEIGHT;
     private int CIRCLE_RADIUS;
 
-    private static final float SHRINK_INTERVAL = 5;
-    private static final float SAVE_INTERVAL = 500;
+    private static final float SHRINK_INTERVAL = 0.05f;
+    private static final float SAVE_INTERVAL = 5;
 
     private ArcButton showUpgradesButton;
     private ArcButton showBuildingsButton;
@@ -427,7 +427,7 @@ public class MainScreen extends Screen {
 
         g.drawString(NumberFormatter.formatDouble(clicks), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 10);
         g.drawString(
-                NumberFormatter.formatDouble(extra * 100) +
+                NumberFormatter.formatDouble(extra) +
                         context.getString(R.string.per_second),
                 SCREEN_WIDTH / 2,
                 SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + game.scaleX(200)
@@ -441,7 +441,7 @@ public class MainScreen extends Screen {
                 multiplierPaint
         );
 
-        rotation = (rotation + ((float) touches) / MAX_TOUCHES * deltaTime * 8) % 360;
+        rotation = (rotation + ((float) touches) / MAX_TOUCHES * deltaTime * 800) % 360;
 
         if (superTouchActive) {
             circlePaint.setColor(ColorPalette.bonus);
@@ -500,7 +500,7 @@ public class MainScreen extends Screen {
         g.drawLine(0, SCREEN_HEIGHT - drawerHeight, SCREEN_WIDTH, SCREEN_HEIGHT - drawerHeight, ColorPalette.black);
 
         g.drawString(
-                NumberFormatter.formatDouble(extra * 100) +
+                NumberFormatter.formatDouble(extra) +
                         context.getString(R.string.per_second),
                 SCREEN_WIDTH / 2,
                 SCREEN_HEIGHT - drawerHeight + game.scaleY(100)
