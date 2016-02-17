@@ -6,8 +6,10 @@ public abstract class BuyButton extends Button{
         super(text, x0, y0, x1, y1);
     }
 
+    protected int owned;
+
     public double buy(double currency) {
-        if (currency > getCost()) {
+        if (buyPossible(currency)) {
             // We need to calculate cost before increasing number, or it will become more expensive.
             double currencyAfter = currency - getCost();
             increaseOwned();
@@ -16,8 +18,23 @@ public abstract class BuyButton extends Button{
         return currency;
     }
 
-    public abstract void increaseOwned();
-    public abstract int getOwned();
+    public void increaseOwned() {
+        owned++;
+    }
+
+    public int getOwned() {
+        return owned;
+    }
+
+    public String getText() {
+        return getTypeString();
+    }
+
+    public boolean buyPossible(double currency) {
+        return buyAllowed() && currency > getCost();
+    }
+
+    public abstract boolean buyAllowed();
     public abstract double getCost();
-    public abstract String getText();
+    public abstract String getTypeString();
 }

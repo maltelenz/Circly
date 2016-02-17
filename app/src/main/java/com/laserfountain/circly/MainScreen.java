@@ -33,14 +33,14 @@ public class MainScreen extends Screen {
     private static final float SHRINK_INTERVAL = 5;
     private static final float SAVE_INTERVAL = 500;
 
+    private final ArcButton showUpgradesButton;
     private final ArcButton showBuildingsButton;
     private final ArcButton showStatsButton;
 
-    private final Upgrade cornerUpgrade;
-
     private BonusNGon bonusNGon;
 
-    int buildingsHeight;
+    private final int buyButtonHeight;
+    private final int drawerBoxHeight;
 
     private int touches;
     private int multiplier;
@@ -48,9 +48,13 @@ public class MainScreen extends Screen {
     private double clicks;
     private int bonusesCaught;
     private double timePlayed;
+    private int edgesOwned;
+    private int maxEdges;
 
     private ArrayList<Building> buildings;
+    private ArrayList<Upgrade> upgrades;
 
+    private boolean upgradesShown;
     private boolean buildingsShown;
     private boolean statsShown;
 
@@ -74,11 +78,11 @@ public class MainScreen extends Screen {
     private ArrayList<String> snacks;
     private float timeUntilNextSnack;
 
+    private int upgradeDrawerHeight;
     private int buildingDrawerHeight;
     private int statsDrawerHeight;
 
     int drawerHeight;
-
 
     public MainScreen(Game game, Context context) {
         super(game);
@@ -96,19 +100,28 @@ public class MainScreen extends Screen {
         clicks = game.getPoints();
 
         buildings = game.getBuildings();
+        upgrades = game.getUpgrades();
 
         bonusesCaught = game.getBonuses();
         timePlayed = game.getTimePlayed();
 
-        buildingsShown = false;
-        statsShown = false;
+        hideDrawer();
 
         int drawerButtonRadius = SCREEN_WIDTH / 6;
         int drawerButtonHeight = game.scaleY(120);
-        buildingsHeight = game.scaleY(250);
-        buildingDrawerHeight = 4 * buildingsHeight;
+        buyButtonHeight = game.scaleY(250);
+        drawerBoxHeight = game.scaleY(250);
+        upgradeDrawerHeight = drawerBoxHeight + 2 * buyButtonHeight;
+        buildingDrawerHeight = drawerBoxHeight + 2 * buyButtonHeight;
 
-        statsDrawerHeight = game.scaleY(500);
+        statsDrawerHeight = drawerBoxHeight + game.scaleY(500);
+
+        showUpgradesButton = new ArcButton(
+                SCREEN_WIDTH / 6,
+                SCREEN_HEIGHT,
+                drawerButtonRadius,
+                drawerButtonHeight
+        );
 
         showBuildingsButton = new ArcButton(
                 SCREEN_WIDTH / 2,
@@ -126,20 +139,19 @@ public class MainScreen extends Screen {
 
         for (int i = 0; i < buildings.size(); i++) {
             buildings.get(i).setArea(
-                    i * buildingsHeight + 2,
-                    SCREEN_HEIGHT - 3 * buildingsHeight + 2,
-                    (i + 1) * buildingsHeight - 2,
-                    SCREEN_HEIGHT - 2 * buildingsHeight - 2);
+                    i * buyButtonHeight + 2,
+                    SCREEN_HEIGHT - buildingDrawerHeight + drawerBoxHeight + 2,
+                    (i + 1) * buyButtonHeight - 2,
+                    SCREEN_HEIGHT - buildingDrawerHeight + drawerBoxHeight + buyButtonHeight - 2);
         }
 
-        cornerUpgrade = new Upgrade(
-                Upgrade.UpgradeType.Edges,
-                game.getCorners(),
-                0,
-                SCREEN_HEIGHT - buildingsHeight,
-                buildingsHeight,
-                SCREEN_HEIGHT
-        );
+        for (int i = 0; i < upgrades.size(); i++) {
+            upgrades.get(i).setArea(
+                    i * buyButtonHeight + 2,
+                    SCREEN_HEIGHT - upgradeDrawerHeight + drawerBoxHeight + 2,
+                    (i + 1) * buyButtonHeight - 2,
+                    SCREEN_HEIGHT - upgradeDrawerHeight + drawerBoxHeight + buyButtonHeight - 2);
+        }
 
         bonusNGon = null;
         superSpeedActive = false;
@@ -186,63 +198,39 @@ public class MainScreen extends Screen {
     @Override
     public void update(float deltaTime) {
         boolean buttonTriggered = false;
-        boolean touchedsomething = false;
         List<TouchEvent> touchEvents = game.getInput().getTouchEvents();
         int len = touchEvents.size();
         for (int i = 0; i < len; i++) {
             TouchEvent event = touchEvents.get(i);
             if (event.type == TouchEvent.TOUCH_DOWN) {
-                touchedsomething = true;
 
                 if (bonusNGon != null && bonusNGon.inBounds(event)) {
-                    bonusNGon = null;
-                    bonusesCaught++;
-                    Random randomGenerator = new Random();
-                    int selector = randomGenerator.nextInt(100);
-                    if (selector < 70) {
-                        double bonusClicks = extra * 100 * randomGenerator.nextInt(100);
-                        clicks += bonusClicks;
-                        String text = NumberFormatter.formatDouble(bonusClicks) + " bonus!";
-                        addSnack(text);
-                    } else if (selector < 85) {
-                        superTouchActive = true;
-                        superSpeedActive = false;
-                        timeLeftOnSuper = SUPERSPEED_TIME;
-                        updateExtra();
-                        String text = "Super Touch: Touches x " + NumberFormatter.formatDouble(SUPERTOUCH_EFFECT) + "!";
-                        addSnack(text);
-                    } else {
-                        superTouchActive = false;
-                        superSpeedActive = true;
-                        timeLeftOnSuper = SUPERSPEED_TIME;
-                        updateExtra();
-                        String text = "Super speed: Auto touches x " + NumberFormatter.formatDouble(SUPERSPEED_EFFECT) + "!";
-                        addSnack(text);
-                    }
+                    activateBonus();
+                    buttonTriggered = true;
+                    continue;
+                }
+
+                if (!upgradesShown && showUpgradesButton.inBounds(event, drawerHeight)) {
+                    showUpgradeDrawer();
                     buttonTriggered = true;
                     continue;
                 }
 
                 if (!buildingsShown && showBuildingsButton.inBounds(event, drawerHeight)) {
-                    // Expand the buildings tab
-                    buildingsShown = true;
-                    statsShown = false;
+                    showBuildingDrawer();
                     buttonTriggered = true;
                     continue;
                 }
 
                 if (!statsShown && showStatsButton.inBounds(event, drawerHeight)) {
-                    // Expand the stats tab
-                    buildingsShown = false;
-                    statsShown = true;
+                    showStatsDrawer();
                     buttonTriggered = true;
                     continue;
                 }
 
                 if (buildingsShown) {
                     if (showBuildingsButton.inBounds(event, drawerHeight)) {
-                        // Hide the buildings tab
-                        buildingsShown = false;
+                        hideDrawer();
                         buttonTriggered = true;
                         continue;
                     }
@@ -258,18 +246,26 @@ public class MainScreen extends Screen {
                             buttonTriggered = true;
                         }
                     }
-                    if (cornerUpgrade.inBounds(event)) {
-                        clicks = cornerUpgrade.buy(clicks);
-                        updateExtra();
+                }
+
+                if (upgradesShown) {
+                    if (showUpgradesButton.inBounds(event, drawerHeight)) {
+                        hideDrawer();
                         buttonTriggered = true;
                         continue;
+                    }
+                    for (Upgrade b : upgrades) {
+                        if (b.inBounds(event)) {
+                            clicks = b.buy(clicks);
+                            updateExtra();
+                            buttonTriggered = true;
+                        }
                     }
                 }
 
                 if (statsShown) {
                     if (showStatsButton.inBounds(event, drawerHeight)) {
-                        // Hide the stats tab
-                        statsShown = false;
+                        hideDrawer();
                         buttonTriggered = true;
                         continue;
                     }
@@ -286,19 +282,6 @@ public class MainScreen extends Screen {
                     }
                 }
             }
-        }
-
-        if (!buttonTriggered && touchedsomething) {
-            buildingsShown = false;
-            statsShown = false;
-        }
-
-        if (buildingsShown) {
-            drawerHeight = buildingDrawerHeight;
-        } else if (statsShown) {
-            drawerHeight = statsDrawerHeight;
-        } else {
-            drawerHeight = 0;
         }
 
         timeUntilShrink -= deltaTime;
@@ -348,6 +331,58 @@ public class MainScreen extends Screen {
         timePlayed += deltaTime;
     }
 
+    private void showStatsDrawer() {
+        hideDrawer();
+        statsShown = true;
+        drawerHeight = statsDrawerHeight;
+    }
+
+    private void showBuildingDrawer() {
+        hideDrawer();
+        buildingsShown = true;
+        drawerHeight = buildingDrawerHeight;
+    }
+
+    private void showUpgradeDrawer() {
+        hideDrawer();
+        upgradesShown = true;
+        drawerHeight = upgradeDrawerHeight;
+    }
+
+    private void hideDrawer() {
+        upgradesShown = false;
+        buildingsShown = false;
+        statsShown = false;
+        drawerHeight = 0;
+    }
+
+    private void activateBonus() {
+        bonusNGon = null;
+        bonusesCaught++;
+        Random randomGenerator = new Random();
+        int selector = randomGenerator.nextInt(100);
+        if (selector < 70) {
+            double bonusClicks = extra * 100 * randomGenerator.nextInt(100);
+            clicks += bonusClicks;
+            String text = NumberFormatter.formatDouble(bonusClicks) + " bonus!";
+            addSnack(text);
+        } else if (selector < 85) {
+            superTouchActive = true;
+            superSpeedActive = false;
+            timeLeftOnSuper = SUPERSPEED_TIME;
+            updateExtra();
+            String text = "Super Touch: Touches x " + NumberFormatter.formatDouble(SUPERTOUCH_EFFECT) + "!";
+            addSnack(text);
+        } else {
+            superTouchActive = false;
+            superSpeedActive = true;
+            timeLeftOnSuper = SUPERSPEED_TIME;
+            updateExtra();
+            String text = "Super speed: Auto touches x " + NumberFormatter.formatDouble(SUPERSPEED_EFFECT) + "!";
+            addSnack(text);
+        }
+    }
+
     private void addSnack(String text) {
         snacks.add(text);
         if (snacks.size() == 1) {
@@ -358,7 +393,7 @@ public class MainScreen extends Screen {
     private void saveGame() {
         game.updatePoints(clicks);
         game.updateBuildings(buildings);
-        game.updateCorners(cornerUpgrade.getOwned());
+        game.updateUpgrades(upgrades);
         game.updateBonuses(bonusesCaught);
         game.updateTimePlayed(timePlayed);
     }
@@ -404,14 +439,23 @@ public class MainScreen extends Screen {
             }
         }
 
-        g.drawNgon(
-                SCREEN_WIDTH / 2,
-                SCREEN_HEIGHT / 2.5,
-                CIRCLE_RADIUS,
-                cornerUpgrade.getOwned(),
-                circlePainter,
-                rotation
-        );
+        if (edgesOwned == maxEdges) {
+            g.drawCircle(
+                    SCREEN_WIDTH / 2,
+                    SCREEN_HEIGHT / 2.5,
+                    CIRCLE_RADIUS,
+                    circlePainter
+            );
+        } else {
+            g.drawNgon(
+                    SCREEN_WIDTH / 2,
+                    SCREEN_HEIGHT / 2.5,
+                    CIRCLE_RADIUS,
+                    edgesOwned,
+                    circlePainter,
+                    rotation
+            );
+        }
 
         g.drawStringCentered("+" + NumberFormatter.formatDouble(multiplier * baseClick));
 
@@ -423,53 +467,56 @@ public class MainScreen extends Screen {
 
         g.drawArcButton(showBuildingsButton, drawerHeight, buildingsShown);
         g.drawArcButton(showStatsButton, drawerHeight, statsShown);
+        g.drawArcButton(showUpgradesButton, drawerHeight, statsShown);
+
+        g.drawRect(0, SCREEN_HEIGHT - drawerHeight, SCREEN_WIDTH, drawerHeight, ColorPalette.drawer);
+        g.drawRect(0, SCREEN_HEIGHT - drawerHeight, SCREEN_WIDTH, drawerBoxHeight, ColorPalette.box);
+        g.drawLine(0, SCREEN_HEIGHT - drawerHeight, SCREEN_WIDTH, SCREEN_HEIGHT - drawerHeight, ColorPalette.black);
+
+        g.drawString(NumberFormatter.formatDouble(extra * 100) + "/s", SCREEN_WIDTH / 2, SCREEN_HEIGHT - drawerHeight + game.scaleY(100));
+        g.drawString("(+" + NumberFormatter.formatDouble(cornerEffect * 100) + "%)", SCREEN_WIDTH / 2, SCREEN_HEIGHT - drawerHeight + game.scaleY(175), multiplierPaint);
 
         if (buildingsShown) {
-            g.drawRect(0, SCREEN_HEIGHT - buildingDrawerHeight, SCREEN_WIDTH, buildingDrawerHeight, ColorPalette.drawer);
-            g.drawRect(0, SCREEN_HEIGHT - buildingDrawerHeight, SCREEN_WIDTH, buildingsHeight, ColorPalette.box);
-            g.drawLine(0, SCREEN_HEIGHT - buildingDrawerHeight, SCREEN_WIDTH, SCREEN_HEIGHT - buildingDrawerHeight, ColorPalette.black);
-
-            g.drawString(NumberFormatter.formatDouble(extra * 100) + "/s", SCREEN_WIDTH / 2, SCREEN_HEIGHT - 3 * buildingsHeight - game.scaleX(125));
-            g.drawString("(+" + NumberFormatter.formatDouble(cornerEffect * 100) + "%)", SCREEN_WIDTH / 2, SCREEN_HEIGHT - 3 * buildingsHeight - game.scaleX(50), multiplierPaint);
-
             for (Building b : buildings) {
                 g.drawBuildingButton(b, clicks);
             }
-            g.drawBuyButton(cornerUpgrade, clicks);
+        }
+
+        if (upgradesShown) {
+            for (Upgrade b : upgrades) {
+                g.drawBuyButton(b, clicks);
+            }
         }
 
         if (statsShown) {
-            g.drawRect(0, SCREEN_HEIGHT - statsDrawerHeight, SCREEN_WIDTH, statsDrawerHeight, ColorPalette.box);
-            g.drawLine(0, SCREEN_HEIGHT - statsDrawerHeight, SCREEN_WIDTH, SCREEN_HEIGHT - statsDrawerHeight, ColorPalette.black);
-
-            g.drawString("Touches per second: " + NumberFormatter.formatDouble(extra * 100) + "/s",
+            g.drawString("Edges: " + NumberFormatter.formatInt(edgesOwned),
                     game.scaleX(25),
-                    SCREEN_HEIGHT - statsDrawerHeight + game.scaleX(50),
-                    statsTextPaint);
-            g.drawString("Multiplier: " + NumberFormatter.formatDouble(cornerEffect * 100) + "%",
-                    game.scaleX(25),
-                    SCREEN_HEIGHT - statsDrawerHeight + game.scaleX(100),
-                    statsTextPaint);
-            g.drawString("Edges: " + NumberFormatter.formatInt(cornerUpgrade.getOwned()),
-                    game.scaleX(25),
-                    SCREEN_HEIGHT - statsDrawerHeight + game.scaleX(150),
+                    SCREEN_HEIGHT - statsDrawerHeight + drawerBoxHeight + game.scaleX(50),
                     statsTextPaint);
             g.drawString("Bonuses caught: " + NumberFormatter.formatInt(bonusesCaught),
                     game.scaleX(25),
-                    SCREEN_HEIGHT - statsDrawerHeight + game.scaleX(200),
+                    SCREEN_HEIGHT - statsDrawerHeight + drawerBoxHeight + game.scaleX(100),
                     statsTextPaint);
             g.drawString("Time played: " + NumberFormatter.formatDoubleTime(timePlayed/100),
                     game.scaleX(25),
-                    SCREEN_HEIGHT - statsDrawerHeight + game.scaleX(250),
+                    SCREEN_HEIGHT - statsDrawerHeight + drawerBoxHeight + game.scaleX(150),
                     statsTextPaint);
-
         }
 
         drawSnack(g, deltaTime);
 
         if (bonusNGon != null) {
-            g.drawBonusNGon(bonusNGon, Math.max(cornerUpgrade.getOwned(), 3));
+            g.drawBonusNGon(bonusNGon, Math.max(edgesOwned, 3));
         }
+    }
+
+    public Upgrade getEdgeUpgrade() {
+        for (Upgrade b: upgrades) {
+            if (b.getUpgradeType() == Upgrade.UpgradeType.Edges) {
+                return b;
+            }
+        }
+        return null;
     }
 
     private void drawArc(Graphics g, int color, int comp) {
@@ -528,7 +575,9 @@ public class MainScreen extends Screen {
         for (Building b: buildings) {
             extra += b.getUpgradeEffect() * b.getEffect() * b.getOwned();
         }
-        cornerEffect = (cornerUpgrade.getOwned() - 1) * 0.1;
+        edgesOwned = getEdgeUpgrade().getOwned() + 1;
+        maxEdges = getEdgeUpgrade().getMax();
+        cornerEffect = (edgesOwned - 1) * 0.1;
         baseClick = 1 + cornerEffect;
         extra = extra * baseClick;
         if (superSpeedActive) {

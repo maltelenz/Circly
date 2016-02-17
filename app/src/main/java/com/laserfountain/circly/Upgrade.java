@@ -7,8 +7,8 @@ public class Upgrade extends BuyButton{
     }
 
     private UpgradeType utype;
-    private int owned;
     private int cost;
+    private int max;
 
     public Upgrade(UpgradeType utype, int x0, int y0, int x1, int y1) {
         super("", x0, y0, x1, y1);
@@ -17,6 +17,7 @@ public class Upgrade extends BuyButton{
         switch (utype) {
             case Edges:
                 cost = 150;
+                max = 150;
                 break;
         }
     }
@@ -37,13 +38,8 @@ public class Upgrade extends BuyButton{
         this.y1 = y1;
     }
 
-    @Override
-    public void increaseOwned() {
-        owned++;
-    }
-
-    public int getOwned() {
-        return owned;
+    public UpgradeType getUpgradeType() {
+        return utype;
     }
 
     public double getCost() {
@@ -51,8 +47,12 @@ public class Upgrade extends BuyButton{
     }
 
     @Override
-    public String getText() {
-        return getTypeString();
+    public boolean buyAllowed() {
+        return owned < max;
+    }
+
+    public int getMax() {
+        return max;
     }
 
     public String getTypeString() {

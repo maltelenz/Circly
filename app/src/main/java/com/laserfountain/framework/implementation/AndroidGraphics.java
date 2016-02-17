@@ -286,7 +286,11 @@ public class AndroidGraphics implements Graphics {
 
     @Override
     public void drawBuyButton(BuyButton b, double clicks) {
-        drawButton(b.getText(), b.x0, b.y0, b.x1, b.y1, b.getOwned(), b.getCost(), b.getCost() < clicks);
+        if (b.buyAllowed()) {
+            drawButton(b.getText(), b.x0, b.y0, b.x1, b.y1, b.getOwned(), b.getCost(), b.buyPossible(clicks));
+        } else {
+            drawButton(b.getText(), b.x0, b.y0, b.x1, b.y1, b.getOwned(), -2, false);
+        }
     }
 
     @Override

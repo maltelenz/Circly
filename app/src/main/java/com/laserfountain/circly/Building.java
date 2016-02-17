@@ -12,7 +12,6 @@ public class Building extends BuyButton{
     }
 
     private BuildingType btype;
-    private int owned;
     private double effect;
     private int cost;
     private int upgrades;
@@ -88,17 +87,8 @@ public class Building extends BuyButton{
         return currency;
     }
 
-    @Override
-    public void increaseOwned() {
-        owned++;
-    }
-
     public void increaseUpgrades() {
         upgrades++;
-    }
-
-    public int getOwned() {
-        return owned;
     }
 
     public int getUpgrades() {
@@ -129,9 +119,8 @@ public class Building extends BuyButton{
         return upgrades < 10 && owned >= (upgrades + 1) * 5;
     }
 
-    @Override
-    public String getText() {
-        return getTypeString();
+    public boolean buyAllowed() {
+        return true;
     }
 
     public String getTypeString() {

@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.laserfountain.circly.Building;
 import com.laserfountain.circly.Screen;
+import com.laserfountain.circly.Upgrade;
 
 import java.util.ArrayList;
 
@@ -33,19 +34,19 @@ public interface Game {
 
     void updatePoints(double points);
 
-    void updateCorners(int corners);
-
     void updateBonuses(int corners);
 
     void updateBuildings(ArrayList<Building> buildings);
 
     void updateTimePlayed(double timePlayed);
 
+    void updateUpgrades(ArrayList<Upgrade> upgrades);
+
     double getPoints();
 
     ArrayList<Building> getBuildings();
 
-    int getCorners();
+    ArrayList<Upgrade> getUpgrades();
 
     int getBonuses();
 

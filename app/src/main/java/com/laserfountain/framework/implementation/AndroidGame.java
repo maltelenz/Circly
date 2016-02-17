@@ -12,6 +12,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.laserfountain.circly.Building;
+import com.laserfountain.circly.Upgrade;
 import com.laserfountain.framework.Game;
 import com.laserfountain.framework.Graphics;
 import com.laserfountain.framework.Input;
@@ -161,14 +162,6 @@ public abstract class AndroidGame extends Activity implements Game {
     }
 
     @Override
-    public void updateCorners(int corners) {
-        SharedPreferences preferences = getLevelPreferences();
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt(getString(R.string.corners_bought), corners);
-        editor.commit();
-    }
-
-    @Override
     public void updateBonuses(int corners) {
         SharedPreferences preferences = getLevelPreferences();
         SharedPreferences.Editor editor = preferences.edit();
@@ -196,6 +189,16 @@ public abstract class AndroidGame extends Activity implements Game {
     }
 
     @Override
+    public void updateUpgrades(ArrayList<Upgrade> upgrades) {
+        SharedPreferences preferences = getLevelPreferences();
+        SharedPreferences.Editor editor = preferences.edit();
+        for (Upgrade b : upgrades) {
+            editor.putInt(b.getTypeString(), b.getOwned());
+        }
+        editor.commit();
+    }
+
+    @Override
     public ArrayList<Building> getBuildings() {
         SharedPreferences preferences = getLevelPreferences();
         ArrayList<Building> buildings = new ArrayList<>();
@@ -209,10 +212,17 @@ public abstract class AndroidGame extends Activity implements Game {
     }
 
     @Override
-    public int getCorners() {
+    public ArrayList<Upgrade> getUpgrades() {
         SharedPreferences preferences = getLevelPreferences();
-        return preferences.getInt(getString(R.string.corners_bought), 1);
+        ArrayList<Upgrade> upgrades = new ArrayList<>();
+        for (Upgrade.UpgradeType btype : Upgrade.UpgradeType.values()) {
+            upgrades.add(new Upgrade(
+                    btype,
+                    preferences.getInt(btype.name(), 0)));
+        }
+        return upgrades;
     }
+
 
     @Override
     public int getBonuses() {
