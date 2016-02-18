@@ -558,12 +558,24 @@ public class MainScreen extends Screen {
             for (Building b : buildings) {
                 g.drawBuildingButton(b, clicks);
             }
+            g.drawString(
+                    context.getString(R.string.buildings),
+                    game.scaleX(20),
+                    SCREEN_HEIGHT - drawerHeight + drawerBoxHeight - game.scaleY(40),
+                    statsTextPaint
+            );
         }
 
         if (upgradesShown) {
             for (Upgrade b : upgrades) {
                 g.drawBuyButton(b, clicks);
             }
+            g.drawString(
+                    context.getString(R.string.upgrades),
+                    game.scaleX(20),
+                    SCREEN_HEIGHT - drawerHeight + drawerBoxHeight - game.scaleY(40),
+                    statsTextPaint
+            );
         }
 
         if (statsShown) {
@@ -579,6 +591,12 @@ public class MainScreen extends Screen {
                     game.scaleX(25),
                     SCREEN_HEIGHT - statsDrawerHeight + drawerBoxHeight + game.scaleX(150),
                     statsTextPaint);
+            g.drawString(
+                    context.getString(R.string.stats),
+                    game.scaleX(20),
+                    SCREEN_HEIGHT - drawerHeight + drawerBoxHeight - game.scaleY(40),
+                    statsTextPaint
+            );
         }
 
         drawSnack(g, deltaTime);

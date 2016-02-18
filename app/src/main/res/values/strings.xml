@@ -17,4 +17,7 @@
     <string name="edges_colon">Edges:</string>
     <string name="bonuses_caught_colon">Bonuses caught:</string>
     <string name="time_played_colon">Time played:</string>
+    <string name="buildings">Buildings:</string>
+    <string name="upgrades">Upgrades:</string>
+    <string name="stats">Stats:</string>
 </resources>
