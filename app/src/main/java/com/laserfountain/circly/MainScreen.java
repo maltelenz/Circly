@@ -557,7 +557,7 @@ public class MainScreen extends Screen {
                     game.scaleX(25),
                     SCREEN_HEIGHT - statsDrawerHeight + drawerBoxHeight + game.scaleX(100),
                     statsTextPaint);
-            g.drawString(context.getString(R.string.time_played_colon) + " " + NumberFormatter.formatDoubleTime(timePlayed/100),
+            g.drawString(context.getString(R.string.time_played_colon) + " " + NumberFormatter.formatDoubleTime(timePlayed),
                     game.scaleX(25),
                     SCREEN_HEIGHT - statsDrawerHeight + drawerBoxHeight + game.scaleX(150),
                     statsTextPaint);
