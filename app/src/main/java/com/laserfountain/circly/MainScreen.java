@@ -452,14 +452,14 @@ public class MainScreen extends Screen {
                 NumberFormatter.formatDouble(extra) +
                         context.getString(R.string.per_second),
                 SCREEN_WIDTH / 2,
-                SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + game.scaleX(200)
+                SCREEN_HEIGHT / 2.5f + CIRCLE_RADIUS + game.scaleX(200)
         );
         g.drawString(
                 context.getString(R.string.start_paren_plus) +
                         NumberFormatter.formatDouble(cornerEffect * 100) +
                         context.getString(R.string.percent_end_paren),
                 SCREEN_WIDTH / 2,
-                SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + game.scaleX(275),
+                SCREEN_HEIGHT / 2.5f + CIRCLE_RADIUS + game.scaleX(275),
                 multiplierPaint
         );
 

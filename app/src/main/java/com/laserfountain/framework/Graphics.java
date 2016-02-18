@@ -48,9 +48,9 @@ public interface Graphics {
 
     void drawImageButton(ImageButton button, int overlay);
 
-    void drawString(String text, double x, double y);
+    void drawString(String text, float x, float y);
 
-    void drawString(String text, double x, double y, Paint painter);
+    void drawString(String text, float x, float y, Paint painter);
 
     void drawStringCentered(String text);
 

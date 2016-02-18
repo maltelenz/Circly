@@ -236,13 +236,13 @@ public class AndroidGraphics implements Graphics {
     }
 
     @Override
-    public void drawString(String text, double x, double y) {
+    public void drawString(String text, float x, float y) {
         drawString(text, x, y, darkTextPaint);
     }
 
     @Override
-    public void drawString(String text, double x, double y, Paint painter) {
-        canvas.drawText(text, Math.round(x), Math.round(y) + painter.getFontMetrics().bottom, painter);
+    public void drawString(String text, float x, float y, Paint painter) {
+        canvas.drawText(text, x, y + painter.getFontMetrics().bottom, painter);
     }
 
     @Override
@@ -252,7 +252,7 @@ public class AndroidGraphics implements Graphics {
 
     @Override
     public void drawStringCentered(String text, Paint painter) {
-        drawString(text, getWidth() / 2, getHeight() / 2.5, painter);
+        drawString(text, getWidth() / 2, getHeight() / 2.5f, painter);
     }
 
     @Override
