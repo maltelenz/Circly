@@ -515,7 +515,7 @@ public class MainScreen extends Screen {
 
         g.drawArcButton(showBuildingsButton, drawerHeight, buildingsShown);
         g.drawArcButton(showStatsButton, drawerHeight, statsShown);
-        g.drawArcButton(showUpgradesButton, drawerHeight, statsShown);
+        g.drawArcButton(showUpgradesButton, drawerHeight, upgradesShown);
 
         g.drawRect(0, SCREEN_HEIGHT - drawerHeight, SCREEN_WIDTH, drawerHeight, ColorPalette.drawer);
         g.drawRect(0, SCREEN_HEIGHT - drawerHeight, SCREEN_WIDTH, drawerBoxHeight, ColorPalette.box);
