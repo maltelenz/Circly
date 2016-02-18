@@ -110,13 +110,7 @@ public class MainScreen extends Screen {
                     SCREEN_HEIGHT - buildingDrawerHeight + drawerBoxHeight + buyButtonHeight - 2);
         }
 
-        for (int i = 0; i < upgrades.size(); i++) {
-            upgrades.get(i).setArea(
-                    i * buyButtonHeight + 2,
-                    SCREEN_HEIGHT - upgradeDrawerHeight + drawerBoxHeight + 2,
-                    (i + 1) * buyButtonHeight - 2,
-                    SCREEN_HEIGHT - upgradeDrawerHeight + drawerBoxHeight + buyButtonHeight - 2);
-        }
+        updateUpgradeAreas();
 
         bonusNGon = null;
         superSpeedActive = false;
@@ -129,6 +123,20 @@ public class MainScreen extends Screen {
 
         updateExtra();
         multiplier = baseMultiplier + 1;
+    }
+
+    private void updateUpgradeAreas() {
+        int i = 0;
+        for (Upgrade u : upgrades) {
+            if (u.buyAllowed()) {
+                u.setArea(
+                        i * buyButtonHeight + 2,
+                        SCREEN_HEIGHT - upgradeDrawerHeight + drawerBoxHeight + 2,
+                        (i + 1) * buyButtonHeight - 2,
+                        SCREEN_HEIGHT - upgradeDrawerHeight + drawerBoxHeight + buyButtonHeight - 2);
+                i++;
+            }
+        }
     }
 
     private void initializeDimensions() {
@@ -272,6 +280,7 @@ public class MainScreen extends Screen {
                         if (b.inBounds(event)) {
                             clicks = b.buy(clicks);
                             updateExtra();
+                            updateUpgradeAreas();
                         }
                     }
                 }
@@ -472,6 +481,9 @@ public class MainScreen extends Screen {
                 case 5:
                     circlePaint.setColor(ColorPalette.circleTeal);
                     break;
+                case 6:
+                    circlePaint.setColor(ColorPalette.circleGreen);
+                    break;
             }
         }
 
@@ -633,7 +645,7 @@ public class MainScreen extends Screen {
         if (superSpeedActive) {
             extra = extra * SUPERSPEED_EFFECT;
         }
-        perTouch = baseClick + getUpgrade(Upgrade.UpgradeType.TouchPercent).getOwned() * extra;
+        perTouch = baseClick + getUpgrade(Upgrade.UpgradeType.TouchPercent).getOwned() * extra / 100;
         if (superTouchActive) {
             perTouch = perTouch * SUPERTOUCH_EFFECT;
         }
@@ -655,8 +667,8 @@ public class MainScreen extends Screen {
 
     @Override
     public boolean backButton() {
-        if (buildingsShown) {
-            buildingsShown = false;
+        if (buildingsShown || upgradesShown || statsShown) {
+            hideDrawer();
             return false;
         } else {
             saveGame();
