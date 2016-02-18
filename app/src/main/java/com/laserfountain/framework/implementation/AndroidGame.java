@@ -7,7 +7,9 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -31,11 +33,6 @@ public abstract class AndroidGame extends Activity implements Game {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(
-                WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN
-            );
         lockOrientationPortrait();
 
         Bitmap frameBuffer = getFrameBuffer();
@@ -53,7 +50,17 @@ public abstract class AndroidGame extends Activity implements Game {
     @Override
     public void onResume() {
         super.onResume();
-        screen.resume();
+
+        View decorView = getWindow().getDecorView();
+
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+
         // Create a new frame buffer, because the screen may be rotated
         Bitmap framebuffer = getFrameBuffer();
         renderView.resume(framebuffer);
@@ -138,13 +145,16 @@ public abstract class AndroidGame extends Activity implements Game {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
-    @SuppressWarnings("deprecation")
     private int getFrameBufferWidth() {
-        return getWindowManager().getDefaultDisplay().getWidth();
+        DisplayMetrics outMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getRealMetrics(outMetrics);
+        return outMetrics.widthPixels;
     }
-    @SuppressWarnings("deprecation")
+
     private int getFrameBufferHeight() {
-        return getWindowManager().getDefaultDisplay().getHeight();
+        DisplayMetrics outMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getRealMetrics(outMetrics);
+        return outMetrics.heightPixels;
     }
 
     private Bitmap getFrameBuffer() {
