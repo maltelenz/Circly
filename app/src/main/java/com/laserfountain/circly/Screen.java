@@ -1,11 +1,6 @@
 package com.laserfountain.circly;
 
-import android.graphics.Paint;
-import android.graphics.Paint.Style;
-import android.graphics.RectF;
-
 import com.laserfountain.framework.Game;
-import com.laserfountain.framework.Graphics;
 
 public class Screen {
     protected final Game game;

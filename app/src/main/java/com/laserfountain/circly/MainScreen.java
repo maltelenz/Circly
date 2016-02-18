@@ -2,6 +2,8 @@ package com.laserfountain.circly;
 
 import android.content.Context;
 import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.Point;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 
@@ -30,7 +32,7 @@ public class MainScreen extends Screen {
     private int CIRCLE_RADIUS;
 
     private static final float SHRINK_INTERVAL = 0.05f;
-    private static final float SAVE_INTERVAL = 5;
+    private static final float SAVE_INTERVAL = 60;
 
     private ArcButton showUpgradesButton;
     private ArcButton showBuildingsButton;
@@ -67,7 +69,6 @@ public class MainScreen extends Screen {
     private float rotation;
     private double extra;
 
-    private double baseClick;
     private double perTouch;
     private double cornerEffect;
 
@@ -76,6 +77,7 @@ public class MainScreen extends Screen {
     private Paint multiplierPaint;
     private Paint snackTextPaint;
     private Paint statsTextPaint;
+    private Path nGonPath;
 
     private ArrayList<String> snacks;
     private float timeUntilNextSnack;
@@ -348,6 +350,7 @@ public class MainScreen extends Screen {
         if (timeLeftOnSuper < 0) {
             superTouchActive = false;
             superSpeedActive = false;
+            timeLeftOnSuper = Float.MAX_VALUE;
             updateExtra();
         }
 
@@ -494,12 +497,27 @@ public class MainScreen extends Screen {
                     CIRCLE_RADIUS,
                     circlePaint
             );
-        } else {
-            g.drawNgon(
+        } else if (edgesOwned == 1) {
+            g.drawOneGon(
                     SCREEN_WIDTH / 2,
                     SCREEN_HEIGHT / 2.5,
                     CIRCLE_RADIUS,
-                    edgesOwned,
+                    circlePaint,
+                    rotation
+            );
+        } else if (edgesOwned == 2) {
+            g.drawTwoGon(
+                    SCREEN_WIDTH / 2,
+                    SCREEN_HEIGHT / 2.5,
+                    CIRCLE_RADIUS,
+                    circlePaint,
+                    rotation
+            );
+        } else if (edgesOwned > 2) {
+            g.drawNgon(
+                    nGonPath,
+                    SCREEN_WIDTH / 2,
+                    SCREEN_HEIGHT / 2.5,
                     circlePaint,
                     rotation
             );
@@ -580,37 +598,41 @@ public class MainScreen extends Screen {
     }
 
     private void drawArc(Graphics g, int color, int comp) {
-        arcPainter.setColor(ColorPalette.circleInactive);
-        int extraRadius =  2 * SMALL_CIRCLE_RADIUS * (comp + 2);
-        g.drawArc(
-                new RectF(
-                        SCREEN_WIDTH / 2 - CIRCLE_RADIUS - extraRadius,
-                        (int) Math.round(SCREEN_HEIGHT / 2.5 - CIRCLE_RADIUS - extraRadius),
-                        SCREEN_WIDTH / 2 + CIRCLE_RADIUS + extraRadius,
-                        (int) Math.round(SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + extraRadius)
-                ),
-                1,
-                arcPainter);
-
         float percent;
-        arcPainter.setColor(color);
         if (multiplier < comp) {
-            return;
+            percent = 0;
         } else if (multiplier > comp) {
             percent = 1;
         } else {
             percent = ((float) touches) / MAX_TOUCHES;
         }
 
-        g.drawArc(
-                new RectF(
-                        SCREEN_WIDTH / 2 - CIRCLE_RADIUS - extraRadius,
-                        (int) Math.round(SCREEN_HEIGHT / 2.5 - CIRCLE_RADIUS - extraRadius),
-                        SCREEN_WIDTH / 2 + CIRCLE_RADIUS + extraRadius,
-                        (int) Math.round(SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + extraRadius)
-                ),
-                percent,
-                arcPainter);
+        int extraRadius =  2 * SMALL_CIRCLE_RADIUS * (comp + 2);
+
+        final RectF arcRect = new RectF(
+                SCREEN_WIDTH / 2 - CIRCLE_RADIUS - extraRadius,
+                (int) Math.round(SCREEN_HEIGHT / 2.5 - CIRCLE_RADIUS - extraRadius),
+                SCREEN_WIDTH / 2 + CIRCLE_RADIUS + extraRadius,
+                (int) Math.round(SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS + extraRadius)
+        );
+
+        if (percent < 1) {
+            // Not fully colored, we need the gray circle
+            arcPainter.setColor(ColorPalette.circleInactive);
+            g.drawArc(
+                    arcRect,
+                    1,
+                    arcPainter);
+        }
+
+        if (percent > 0) {
+            // At least a little bit colored, we need the color circle
+            arcPainter.setColor(color);
+            g.drawArc(
+                    arcRect,
+                    percent,
+                    arcPainter);
+        }
     }
 
     private void drawSnack(Graphics g, float deltaTime) {
@@ -636,11 +658,12 @@ public class MainScreen extends Screen {
             extra += b.getUpgradeEffect() * b.getEffect() * b.getOwned();
         }
         edgesOwned = getUpgrade(Upgrade.UpgradeType.Edges).getOwned();
+        updateNGon();
         maxEdges = getUpgrade(Upgrade.UpgradeType.Edges).getMax();
         baseMultiplier = getUpgrade(Upgrade.UpgradeType.AutoRotator).getOwned();
         multiplier = Math.max(multiplier, baseMultiplier + 1);
         cornerEffect = edgesOwned * 0.1;
-        baseClick = 1 + cornerEffect;
+        double baseClick = 1 + cornerEffect;
         extra = extra * baseClick;
         if (superSpeedActive) {
             extra = extra * SUPERSPEED_EFFECT;
@@ -650,6 +673,30 @@ public class MainScreen extends Screen {
             perTouch = perTouch * SUPERTOUCH_EFFECT;
         }
         saveGame();
+    }
+
+    private void updateNGon() {
+        if (edgesOwned < 3) {
+            // We dont paint anything smaller than a triangle this way
+            return;
+        }
+        double angle = 2.0 * Math.PI / edgesOwned;
+
+        List<Point> points = new ArrayList<>();
+        for(int i = 0; i < edgesOwned; i++) {
+            points.add(new Point(
+                    (int) Math.round(SCREEN_WIDTH / 2 + CIRCLE_RADIUS * Math.cos(angle * i)),
+                    (int) Math.round(SCREEN_HEIGHT / 2.5 + CIRCLE_RADIUS * Math.sin(angle * i))
+            ));
+        }
+
+        nGonPath = new Path();
+        nGonPath.moveTo(points.get(0).x, points.get(0).y);
+        for (Point p : points.subList(1, points.size())) {
+            nGonPath.lineTo(p.x, p.y);
+        }
+        nGonPath.lineTo(points.get(0).x, points.get(0).y);
+        nGonPath.close();
     }
 
     @Override

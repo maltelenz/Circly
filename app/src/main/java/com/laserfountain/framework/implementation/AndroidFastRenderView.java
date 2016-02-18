@@ -3,6 +3,7 @@ package com.laserfountain.framework.implementation;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.os.SystemClock;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -12,6 +13,7 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
     Thread renderThread = null;
     SurfaceHolder holder;
     volatile boolean running = false;
+    final double MIN_REFRESH_TIME = 0.03;
 
     public AndroidFastRenderView(AndroidGame game, Bitmap framebuffer) {
         super(game);
@@ -35,6 +37,12 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
                 continue;
 
             float deltaTime = (System.nanoTime() - startTime) / 1000000000.0f;
+
+            if (deltaTime < MIN_REFRESH_TIME) {
+                SystemClock.sleep((long) Math.floor(1000 * (MIN_REFRESH_TIME - deltaTime)));
+            }
+
+            deltaTime = (System.nanoTime() - startTime) / 1000000000.0f;
             startTime = System.nanoTime();
 
             game.getCurrentScreen().update(deltaTime);

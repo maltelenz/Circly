@@ -131,7 +131,11 @@ public class AndroidGraphics implements Graphics {
 
     @Override
     public void drawArc(RectF rect, float percent, Paint painter) {
-        canvas.drawArc(rect, -90, 360 * percent, false, painter);
+        if (percent == 1) {
+            canvas.drawCircle(rect.centerX(), rect.centerY(), rect.width() / 2, painter);
+        } else {
+            canvas.drawArc(rect, -90, 360 * percent, false, painter);
+        }
     }
 
     @Override
@@ -163,31 +167,39 @@ public class AndroidGraphics implements Graphics {
     }
 
     @Override
-    public void drawNgon(double x, double y, double radius, int n, Paint paint, float rotation) {
-        if (n == 0) {
-            return;
-        } else if (n == 1) {
-                canvas.save();
-                canvas.rotate(rotation, (float) x, (float) y);
-                drawCircle(x + radius / 2, y, Math.round(radius / 4), paint);
-                canvas.restore();
-                return;
-        } else if (n == 2) {
-            canvas.save();
-            canvas.rotate(rotation, (float) x, (float) y);
-            paint.setStrokeWidth(Math.round(radius / 4));
-            drawLine(x - radius, y, x + radius, y, paint);
-            canvas.restore();
-            return;
-        }
+    public void drawOneGon(double x, double y, double radius, Paint paint, float rotation) {
+        canvas.save();
+        canvas.rotate(rotation, (float) x, (float) y);
+        drawCircle(x + radius / 2, y, Math.round(radius / 4), paint);
+        canvas.restore();
+    }
 
-        double angle = 2.0 * Math.PI / n;
+    @Override
+    public void drawTwoGon(double x, double y, double radius, Paint paint, float rotation) {
+        canvas.save();
+        canvas.rotate(rotation, (float) x, (float) y);
+        paint.setStrokeWidth(Math.round(radius / 4));
+        drawLine(x - radius, y, x + radius, y, paint);
+        canvas.restore();
+    }
+
+    @Override
+    public void drawNgon(Path path, double x, double y, Paint paint, float rotation) {
+        canvas.save();
+        canvas.rotate(rotation, (float) x, (float) y);
+        canvas.drawPath(path, paint);
+        canvas.restore();
+    }
+
+    @Override
+    public void drawBonusNGon(BonusNGon bonusNGon, int corners) {
+        double angle = 2.0 * Math.PI / corners;
 
         List<Point> points = new ArrayList<>();
-        for(int i = 0; i < n; i++) {
+        for(int i = 0; i < corners; i++) {
             points.add(new Point(
-                    (int) Math.round(x + radius * Math.cos(angle * i)),
-                    (int) Math.round(y + radius * Math.sin(angle * i))
+                    (int) Math.round(bonusNGon.x + bonusNGon.radius * Math.cos(angle * i)),
+                    (int) Math.round(bonusNGon.y + bonusNGon.radius * Math.sin(angle * i))
             ));
         }
 
@@ -199,15 +211,7 @@ public class AndroidGraphics implements Graphics {
         path.lineTo(points.get(0).x, points.get(0).y);
         path.close();
 
-        canvas.save();
-        canvas.rotate(rotation, (float) x, (float) y);
-        canvas.drawPath(path, paint);
-        canvas.restore();
-    }
-
-    @Override
-    public void drawBonusNGon(BonusNGon bonusNGon, int corners) {
-        drawNgon(bonusNGon.x, bonusNGon.y, bonusNGon.radius, corners, bonusPaint, 0);
+        canvas.drawPath(path, bonusPaint);
     }
 
     @Override
@@ -308,6 +312,7 @@ public class AndroidGraphics implements Graphics {
     @Override
     public void drawArcButton(ArcButton b, int drawerSize, boolean active) {
         Paint arcPainter = new Paint();
+        arcPainter.setAntiAlias(true);
         if (active) {
             arcPainter.setColor(ColorPalette.button);
             arcPainter.setShadowLayer(scale(10.0f), scale(2.0f), scale(2.0f), ColorPalette.buttonShadow);

@@ -72,7 +72,11 @@ public interface Graphics {
 
     int getHeight();
 
-    void drawNgon(double x, double y, double radius, int n, Paint paint, float rotation);
+    void drawOneGon(double x, double y, double radius, Paint paint, float rotation);
+
+    void drawTwoGon(double x, double y, double radius, Paint paint, float rotation);
+
+    void drawNgon(Path path, double x, double y, Paint paint, float rotation);
 
     void drawBonusNGon(BonusNGon bonusNGon, int corners);
 
