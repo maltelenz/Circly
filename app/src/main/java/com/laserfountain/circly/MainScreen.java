@@ -12,6 +12,7 @@ import com.laserfountain.framework.Graphics;
 import com.laserfountain.framework.Input.TouchEvent;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -88,6 +89,10 @@ public class MainScreen extends Screen {
 
     private int drawerHeight;
 
+    private LinkedList<Float> deltaTimes;
+    private LinkedList<Integer> deltaTouches;
+    double touchesPerSecond;
+
     private Context context;
 
     public MainScreen(Game game, Context context) {
@@ -122,6 +127,13 @@ public class MainScreen extends Screen {
         initializePainters();
 
         snacks = new ArrayList<>();
+
+        deltaTimes = new LinkedList<>();
+        deltaTouches = new LinkedList<>();
+        for (int i = 0; i < 50; i++) {
+            deltaTouches.add(0);
+            deltaTimes.add(0f);
+        }
 
         updateExtra();
         multiplier = baseMultiplier + 1;
@@ -232,6 +244,7 @@ public class MainScreen extends Screen {
     public void update(float deltaTime) {
         List<TouchEvent> touchEvents = game.getInput().getTouchEvents();
         int len = touchEvents.size();
+        int newTouches = 0;
         for (int i = 0; i < len; i++) {
             TouchEvent event = touchEvents.get(i);
             if (event.type == TouchEvent.TOUCH_DOWN) {
@@ -294,7 +307,7 @@ public class MainScreen extends Screen {
                     }
                 }
 
-                clicks += multiplier * perTouch;
+                newTouches++;
 
                 if (baseMultiplier != 5) {
                     touches += TOUCH_DIFF;
@@ -309,6 +322,20 @@ public class MainScreen extends Screen {
                 }
             }
         }
+        clicks += multiplier * perTouch * newTouches;
+        deltaTouches.removeFirst();
+        deltaTouches.add(newTouches);
+        deltaTimes.removeFirst();
+        deltaTimes.add(deltaTime);
+        int touchesInLatestX = 0;
+        for (Integer i : deltaTouches) {
+            touchesInLatestX += i;
+        }
+        double timeInLatestX = 0;
+        for (Float d : deltaTimes) {
+            timeInLatestX += d;
+        }
+        touchesPerSecond = touchesInLatestX / timeInLatestX;
 
         if (baseMultiplier == 5) {
             // Fully upgraded rotational circles
@@ -523,7 +550,19 @@ public class MainScreen extends Screen {
             );
         }
 
-        g.drawStringCentered("+" + NumberFormatter.formatDouble(multiplier * perTouch));
+        g.drawString("+" + NumberFormatter.formatDouble(multiplier * perTouch),
+                SCREEN_WIDTH / 2,
+                SCREEN_HEIGHT / 2.5f
+        );
+        if (touchesPerSecond != 0) {
+            g.drawString(
+                    NumberFormatter.formatDouble(touchesPerSecond * multiplier * perTouch) +
+                            context.getString(R.string.per_second),
+                    SCREEN_WIDTH / 2,
+                    SCREEN_HEIGHT / 2 - game.scaleY(100),
+                    multiplierPaint
+            );
+        }
 
         drawArc(g, ColorPalette.circlePurple, 1);
         drawArc(g, ColorPalette.circleRed, 2);
