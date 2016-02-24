@@ -5,7 +5,8 @@ public class Upgrade extends BuyButton{
     public enum UpgradeType {
         Edges,
         AutoRotator,
-        TouchPercent
+        TouchPercent,
+        GoldRush
     }
 
     private UpgradeType utype;
@@ -32,6 +33,11 @@ public class Upgrade extends BuyButton{
                 cost = 7000;
                 max = 5;
                 ownedExponent = 10;
+                break;
+            case GoldRush:
+                cost = 100000;
+                max = 1;
+                ownedExponent = 1;
                 break;
         }
     }

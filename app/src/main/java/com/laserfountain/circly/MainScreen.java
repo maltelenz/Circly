@@ -94,6 +94,7 @@ public class MainScreen extends Screen {
     double touchesPerSecond;
 
     private Context context;
+    private boolean goldRush;
 
     public MainScreen(Game game, Context context) {
         super(game);
@@ -358,7 +359,8 @@ public class MainScreen extends Screen {
 
         if (bonusNGon == null) {
             Random randomGenerator = new Random();
-            if (randomGenerator.nextInt(5000) == 0) {
+            int randomInt = randomGenerator.nextInt(5000);
+            if (randomInt == 0 || (goldRush && randomInt < 2)) {
                 // Show a new bonus ngon
                 bonusNGon = new BonusNGon(
                         BONUS_NGON_RADIUS + randomGenerator.nextInt(SCREEN_WIDTH - 2 * BONUS_NGON_RADIUS),
@@ -722,16 +724,22 @@ public class MainScreen extends Screen {
         maxEdges = getUpgrade(Upgrade.UpgradeType.Edges).getMax();
         baseMultiplier = getUpgrade(Upgrade.UpgradeType.AutoRotator).getOwned();
         multiplier = Math.max(multiplier, baseMultiplier + 1);
+
         cornerEffect = edgesOwned * 0.1;
         double baseClick = 1 + cornerEffect;
         extra = extra * baseClick;
+
         if (superSpeedActive) {
             extra = extra * SUPERSPEED_EFFECT;
         }
+
         perTouch = baseClick + getUpgrade(Upgrade.UpgradeType.TouchPercent).getOwned() * extra / 100;
         if (superTouchActive) {
             perTouch = perTouch * SUPERTOUCH_EFFECT;
         }
+
+        goldRush = getUpgrade(Upgrade.UpgradeType.GoldRush).getOwned() > 0;
+
         saveGame();
     }
 
