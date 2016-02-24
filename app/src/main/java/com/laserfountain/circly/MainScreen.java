@@ -656,7 +656,10 @@ public class MainScreen extends Screen {
 
     private void drawArc(Graphics g, int color, int comp) {
         float percent;
-        if (multiplier < comp) {
+        if (superTouchActive || superSpeedActive) {
+            percent = timeLeftOnSuper / SUPERSPEED_TIME;
+            color = ColorPalette.bonus;
+        } else if (multiplier < comp) {
             percent = 0;
         } else if (multiplier > comp) {
             percent = 1;
