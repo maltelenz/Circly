@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_id">339464719824</string>
+    <string name="achievement_1k">CgkI0JuyzfAJEAIQAg</string>
+    <string name="achievement_100k">CgkI0JuyzfAJEAIQAw</string>
+    <string name="achievement_10m">CgkI0JuyzfAJEAIQBA</string>
+    <string name="achievement_full_circle">CgkI0JuyzfAJEAIQAQ</string>
+    <string name="achievement_golden_triangle">CgkI0JuyzfAJEAIQBQ</string>
+
+    <string name="leaderboard_touches">CgkI0JuyzfAJEAIQBg</string>
+</resources>

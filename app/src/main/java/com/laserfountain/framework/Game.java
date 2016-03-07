@@ -57,4 +57,9 @@ public interface Game {
      */
     void lockOrientationPortrait();
 
+    void signInClicked();
+
+    void signOutClicked();
+
+    boolean signedIn();
 }

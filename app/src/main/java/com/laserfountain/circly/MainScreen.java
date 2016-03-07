@@ -39,6 +39,9 @@ public class MainScreen extends Screen {
     private ArcButton showBuildingsButton;
     private ArcButton showStatsButton;
 
+    private Button signInButton;
+    private Button signOutButton;
+
     private BonusNGon bonusNGon;
 
     private int buyButtonHeight;
@@ -117,6 +120,15 @@ public class MainScreen extends Screen {
                     (i + 1) * buyButtonHeight - 2,
                     SCREEN_HEIGHT - buildingDrawerHeight + drawerBoxHeight + buyButtonHeight - 2);
         }
+
+        signInButton = new Button(context.getString(R.string.common_signin_button_text),
+                0, SCREEN_HEIGHT - drawerBoxHeight,
+                2 * drawerBoxHeight, SCREEN_HEIGHT
+        );
+        signOutButton = new Button(context.getString(R.string.sign_out),
+                0, SCREEN_HEIGHT - drawerBoxHeight,
+                2 * drawerBoxHeight, SCREEN_HEIGHT
+        );
 
         updateUpgradeAreas();
 
@@ -305,6 +317,12 @@ public class MainScreen extends Screen {
                     if (showStatsButton.inBounds(event, drawerHeight)) {
                         hideDrawer();
                         continue;
+                    }
+                    if (!game.signedIn() && signInButton.inBounds(event)) {
+                        game.signInClicked();
+                    }
+                    if (game.signedIn() && signOutButton.inBounds(event)) {
+                        game.signOutClicked();
                     }
                 }
 
@@ -638,6 +656,11 @@ public class MainScreen extends Screen {
                     SCREEN_HEIGHT - drawerHeight + drawerBoxHeight - game.scaleY(40),
                     statsTextPaint
             );
+            if (game.signedIn()) {
+                g.drawButton(signOutButton);
+            } else {
+                g.drawButton(signInButton);
+            }
         }
 
         drawSnack(g, deltaTime);

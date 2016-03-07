@@ -2,6 +2,7 @@ package com.laserfountain.framework.implementation;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
@@ -13,6 +14,15 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+
+import com.google.android.gms.*;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.games.Games;
+import com.google.android.gms.games.achievement.Achievements;
+import com.google.example.games.basegameutils.BaseGameUtils;
+
+
 import com.laserfountain.circly.Building;
 import com.laserfountain.circly.Upgrade;
 import com.laserfountain.framework.Game;
@@ -23,15 +33,34 @@ import com.laserfountain.circly.Screen;
 
 import java.util.ArrayList;
 
-public abstract class AndroidGame extends Activity implements Game {
+public abstract class AndroidGame extends Activity implements Game, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener  {
     AndroidFastRenderView renderView;
     Graphics graphics;
     Input input;
     Screen screen;
+    private boolean signedIn;
+
+    // Client used to interact with Google APIs
+    private GoogleApiClient mGoogleApiClient;
+
+    private static int RC_SIGN_IN = 9001;
+
+    private boolean mResolvingConnectionFailure = false;
+    private boolean mAutoStartSignInflow = true;
+    private boolean mSignInClicked = false;
+    boolean mExplicitSignOut = false;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Create the Google API Client with access to Plus and Games
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(Games.API).addScope(Games.SCOPE_GAMES)
+                .build();
 
         lockOrientationPortrait();
 
@@ -45,6 +74,22 @@ public abstract class AndroidGame extends Activity implements Game {
         setContentView(renderView);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        signedIn = false;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!mExplicitSignOut) {
+            mGoogleApiClient.connect();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mGoogleApiClient.disconnect();
     }
 
     @Override
@@ -83,6 +128,72 @@ public abstract class AndroidGame extends Activity implements Game {
             // If the screen says we can exit, use default implementation and exit.
             super.onBackPressed();
         }
+    }
+
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        signedIn = true;
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        if (mResolvingConnectionFailure) {
+            // already resolving
+            return;
+        }
+
+        // if the sign-in button was clicked or if auto sign-in is enabled,
+        // launch the sign-in flow
+        if (mSignInClicked || mAutoStartSignInflow) {
+            mAutoStartSignInflow = false;
+            mSignInClicked = false;
+            mResolvingConnectionFailure = true;
+
+            if (!BaseGameUtils.resolveConnectionFailure(this,
+                    mGoogleApiClient, connectionResult,
+                    RC_SIGN_IN, getString(R.string.signin_other_error))) {
+                mResolvingConnectionFailure = false;
+            }
+        }
+
+        signedIn = false;
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        // Attempt to reconnect
+        mGoogleApiClient.connect();
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode,
+                                    Intent intent) {
+        if (requestCode == RC_SIGN_IN) {
+            mSignInClicked = false;
+            mResolvingConnectionFailure = false;
+            if (resultCode == RESULT_OK) {
+                mGoogleApiClient.connect();
+            } else {
+                BaseGameUtils.showActivityResultError(this,
+                        requestCode, resultCode, R.string.signin_failure);
+            }
+        }
+    }
+
+    public void signInClicked() {
+        mSignInClicked = true;
+        mGoogleApiClient.connect();
+    }
+
+    public void signOutClicked() {
+        mSignInClicked = false;
+        Games.signOut(mGoogleApiClient);
+        signedIn = false;
+        mExplicitSignOut = true;
+        mGoogleApiClient.disconnect();
+    }
+
+    public boolean signedIn() {
+        return signedIn;
     }
 
     @Override
