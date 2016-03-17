@@ -1,6 +1,7 @@
 package com.laserfountain.circly;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
@@ -10,6 +11,7 @@ import android.graphics.Typeface;
 import com.laserfountain.framework.Game;
 import com.laserfountain.framework.Graphics;
 import com.laserfountain.framework.Input.TouchEvent;
+import com.laserfountain.framework.implementation.AndroidImage;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -39,8 +41,8 @@ public class MainScreen extends Screen {
     private ArcButton showBuildingsButton;
     private ArcButton showStatsButton;
 
-    private Button signInButton;
-    private Button signOutButton;
+    private ImageButton signInButton;
+    private ImageButton signOutButton;
 
     private BonusNGon bonusNGon;
 
@@ -121,11 +123,20 @@ public class MainScreen extends Screen {
                     SCREEN_HEIGHT - buildingDrawerHeight + drawerBoxHeight + buyButtonHeight - 2);
         }
 
-        signInButton = new Button(context.getString(R.string.common_signin_button_text),
+        BitmapFactory.Options playGamesImageOptions = new BitmapFactory.Options();
+        playGamesImageOptions.inSampleSize = 512/(drawerBoxHeight/4);
+
+        signInButton = new ImageButton(
+                new AndroidImage(BitmapFactory.decodeResource(context.getResources(),
+                        R.drawable.games_controller_white, playGamesImageOptions), Graphics.ImageFormat.RGB565),
+                context.getString(R.string.common_signin_button_text),
                 0, SCREEN_HEIGHT - drawerBoxHeight,
                 2 * drawerBoxHeight, SCREEN_HEIGHT
         );
-        signOutButton = new Button(context.getString(R.string.sign_out),
+        signOutButton = new ImageButton(
+                new AndroidImage(BitmapFactory.decodeResource(context.getResources(),
+                        R.drawable.games_controller_white, playGamesImageOptions), Graphics.ImageFormat.RGB565),
+                context.getString(R.string.sign_out),
                 0, SCREEN_HEIGHT - drawerBoxHeight,
                 2 * drawerBoxHeight, SCREEN_HEIGHT
         );
@@ -657,9 +668,9 @@ public class MainScreen extends Screen {
                     statsTextPaint
             );
             if (game.signedIn()) {
-                g.drawButton(signOutButton);
+                g.drawImageButton(signOutButton);
             } else {
-                g.drawButton(signInButton);
+                g.drawImageButton(signInButton);
             }
         }
 

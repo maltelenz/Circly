@@ -342,20 +342,19 @@ public class AndroidGraphics implements Graphics {
     }
 
     @Override
-    public void drawImageButton(ImageButton button, int overlay) {
+    public void drawImageButton(ImageButton button) {
         Bitmap bitmap = button.img.bitmap;
 
-        dstRect.left = button.x0;
-        dstRect.top = button.y0;
-        dstRect.right = button.x1;
-        dstRect.bottom = button.y1;
+        Paint rectanglePainter = new Paint();
+        rectanglePainter.setColor(ColorPalette.button);
+        canvas.drawRect(button.x0, button.y0, button.x1, button.y1, rectanglePainter);
 
-        canvas.drawBitmap(bitmap, null, dstRect, null);
+        canvas.drawBitmap(bitmap, button.x0 + bitmap.getWidth()/5, button.y0 + ((button.y1 - button.y0) - bitmap.getHeight()) / 2, null);
         drawString(
-                Integer.toString(overlay),
-                button.x0 + (button.x1 - button.x0) / 2,
+                button.str,
+                button.x0 + button.img.getWidth() + (button.x1 - button.x0 - button.img.getWidth()) / 2,
                 button.y0 + (button.y1 - button.y0) / 2,
-                lightTextPaint
+                mediumLightTextPaint
         );
     }
 

@@ -46,7 +46,7 @@ public interface Graphics {
 
     void drawImage(Image Image, int x, int y);
 
-    void drawImageButton(ImageButton button, int overlay);
+    void drawImageButton(ImageButton button);
 
     void drawString(String text, float x, float y);
 
