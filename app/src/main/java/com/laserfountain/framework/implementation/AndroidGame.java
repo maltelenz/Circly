@@ -11,15 +11,12 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 
 
-import com.google.android.gms.*;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
-import com.google.android.gms.games.achievement.Achievements;
 import com.google.example.games.basegameutils.BaseGameUtils;
 
 
@@ -34,6 +31,8 @@ import com.laserfountain.circly.Screen;
 import java.util.ArrayList;
 
 public abstract class AndroidGame extends Activity implements Game, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener  {
+    private static final int REQUEST_ACHIEVEMENTS = 0;
+    private static final double LEADERBOARD_DIVIDER = 1000000;
     AndroidFastRenderView renderView;
     Graphics graphics;
     Input input;
@@ -192,8 +191,43 @@ public abstract class AndroidGame extends Activity implements Game, GoogleApiCli
         mGoogleApiClient.disconnect();
     }
 
+    @Override
+    public void achievementsClicked() {
+        startActivityForResult(Games.Achievements.getAchievementsIntent(mGoogleApiClient),
+                REQUEST_ACHIEVEMENTS);
+    }
+
+
+    @Override
+    public void leaderboardClicked(double clicks) {
+        String leaderboardID = getContext().getString(R.string.leaderboard_touches);
+
+        Games.Leaderboards.submitScore(mGoogleApiClient, leaderboardID, Math.round(clicks / LEADERBOARD_DIVIDER));
+
+        startActivityForResult(Games.Leaderboards.getLeaderboardIntent(mGoogleApiClient, leaderboardID), 0);
+    }
+
+
     public boolean signedIn() {
         return signedIn;
+    }
+
+    @Override
+    public void unlockAchievement(String string) {
+        SharedPreferences preferences = getLevelPreferences();
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean(string, true);
+        editor.commit();
+        Games.Achievements.unlock(mGoogleApiClient, string);
+    }
+
+    @Override
+    public void setAchievementSteps(String string, int nr) {
+        SharedPreferences preferences = getLevelPreferences();
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt(string, nr);
+        editor.commit();
+        Games.Achievements.setSteps(mGoogleApiClient, string, nr);
     }
 
     @Override
@@ -362,4 +396,17 @@ public abstract class AndroidGame extends Activity implements Game, GoogleApiCli
         SharedPreferences preferences = getLevelPreferences();
         return Double.parseDouble(preferences.getString(getString(R.string.points_achieved), "0"));
     }
+
+    @Override
+    public boolean getAchievement(String string) {
+        SharedPreferences preferences = getLevelPreferences();
+        return preferences.getBoolean(string, false);
+    }
+
+    @Override
+    public int getIncrementalAchievement(String string) {
+        SharedPreferences preferences = getLevelPreferences();
+        return preferences.getInt(string, 0);
+    }
+
 }

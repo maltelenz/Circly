@@ -62,4 +62,16 @@ public interface Game {
     void signOutClicked();
 
     boolean signedIn();
+
+    void unlockAchievement(String string);
+
+    boolean getAchievement(String string);
+
+    void achievementsClicked();
+
+    int getIncrementalAchievement(String string);
+
+    void setAchievementSteps(String string, int nr);
+
+    void leaderboardClicked(double clicks);
 }

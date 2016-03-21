@@ -43,6 +43,8 @@ public class MainScreen extends Screen {
 
     private ImageButton signInButton;
     private ImageButton signOutButton;
+    private Button achievementButton;
+    private Button leaderboardButton;
 
     private BonusNGon bonusNGon;
 
@@ -100,6 +102,11 @@ public class MainScreen extends Screen {
 
     private Context context;
     private boolean goldRush;
+    private boolean achievement_1k;
+    private boolean achievement_100k;
+    private boolean achievement_10m;
+    private int achievement_full_circle;
+    private boolean achievement_golden_triangle;
 
     public MainScreen(Game game, Context context) {
         super(game);
@@ -140,6 +147,14 @@ public class MainScreen extends Screen {
                 0, SCREEN_HEIGHT - drawerBoxHeight,
                 2 * drawerBoxHeight, SCREEN_HEIGHT
         );
+
+        achievementButton = new Button(context.getString(R.string.achievements),
+                2 * drawerBoxHeight + 4, SCREEN_HEIGHT - drawerBoxHeight,
+                3 * drawerBoxHeight, SCREEN_HEIGHT);
+
+        leaderboardButton = new Button(context.getString(R.string.leaderboard),
+                3 * drawerBoxHeight + 4, SCREEN_HEIGHT - drawerBoxHeight,
+                4 * drawerBoxHeight, SCREEN_HEIGHT);
 
         updateUpgradeAreas();
 
@@ -262,6 +277,12 @@ public class MainScreen extends Screen {
 
         bonusesCaught = game.getBonuses();
         timePlayed = game.getTimePlayed();
+
+        achievement_1k = game.getAchievement(context.getString(R.string.achievement_1k));
+        achievement_100k = game.getAchievement(context.getString(R.string.achievement_100k));
+        achievement_10m= game.getAchievement(context.getString(R.string.achievement_10m));
+        achievement_full_circle = game.getIncrementalAchievement(context.getString(R.string.achievement_full_circle));
+        achievement_golden_triangle = game.getAchievement(context.getString(R.string.achievement_golden_triangle));
     }
 
     @Override
@@ -334,6 +355,12 @@ public class MainScreen extends Screen {
                     }
                     if (game.signedIn() && signOutButton.inBounds(event)) {
                         game.signOutClicked();
+                    }
+                    if (game.signedIn() && achievementButton.inBounds(event)) {
+                        game.achievementsClicked();
+                    }
+                    if (game.signedIn() && leaderboardButton.inBounds(event)) {
+                        game.leaderboardClicked(clicks);
                     }
                 }
 
@@ -420,6 +447,19 @@ public class MainScreen extends Screen {
 
         clicks += extra * deltaTime;
         timePlayed += deltaTime;
+
+        if (clicks > 1000 && !achievement_1k) {
+            game.unlockAchievement(context.getString(R.string.achievement_1k));
+            achievement_1k = true;
+        }
+        if (clicks > 1000000 && !achievement_100k) {
+            game.unlockAchievement(context.getString(R.string.achievement_100k));
+            achievement_100k = true;
+        }
+        if (clicks > 10000000 && !achievement_10m) {
+            game.unlockAchievement(context.getString(R.string.achievement_10m));
+            achievement_10m = true;
+        }
     }
 
     private void showStatsDrawer() {
@@ -450,6 +490,10 @@ public class MainScreen extends Screen {
     private void activateBonus() {
         bonusNGon = null;
         bonusesCaught++;
+        if (bonusesCaught >= 5 && !achievement_golden_triangle) {
+            game.unlockAchievement(context.getString(R.string.achievement_golden_triangle));
+            achievement_golden_triangle = true;
+        }
         Random randomGenerator = new Random();
         int selector = randomGenerator.nextInt(100);
         if (selector < 70) {
@@ -669,6 +713,8 @@ public class MainScreen extends Screen {
             );
             if (game.signedIn()) {
                 g.drawImageButton(signOutButton);
+                g.drawButton(achievementButton);
+                g.drawButton(leaderboardButton);
             } else {
                 g.drawImageButton(signInButton);
             }
@@ -756,6 +802,10 @@ public class MainScreen extends Screen {
         edgesOwned = getUpgrade(Upgrade.UpgradeType.Edges).getOwned();
         updateNGon();
         maxEdges = getUpgrade(Upgrade.UpgradeType.Edges).getMax();
+        if (edgesOwned != achievement_full_circle) {
+            game.setAchievementSteps(context.getString(R.string.achievement_full_circle), edgesOwned);
+            achievement_full_circle = edgesOwned;
+        }
         baseMultiplier = getUpgrade(Upgrade.UpgradeType.AutoRotator).getOwned();
         multiplier = Math.max(multiplier, baseMultiplier + 1);
 

@@ -4,7 +4,7 @@ import android.graphics.Color;
 
 public class ColorPalette {
     public static int background = Color.rgb(212, 212, 212);
-    public static int button = Color.argb(230, 11, 176, 222);
+    public static int button = Color.argb(230, 11, 138, 222);
     public static int disabledButton = Color.argb(255, 138, 138, 138);
     public static int inactiveButton = Color.argb(200, 11, 176, 222);
 

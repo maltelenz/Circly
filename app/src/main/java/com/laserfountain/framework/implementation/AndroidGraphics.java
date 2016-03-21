@@ -70,7 +70,7 @@ public class AndroidGraphics implements Graphics {
 
         this.mediumLightTextPaint = new Paint();
         mediumLightTextPaint.set(lightTextPaint);
-        mediumLightTextPaint.setTextSize(scale(40));
+        mediumLightTextPaint.setTextSize(scale(35));
 
         bonusPaint = new Paint();
         bonusPaint.setAntiAlias(true);
@@ -259,9 +259,8 @@ public class AndroidGraphics implements Graphics {
     public void drawButton(String text, int x0, int y0, int x1, int y1) {
         Paint rectanglePainter = new Paint();
         rectanglePainter.setColor(ColorPalette.button);
-        rectanglePainter.setShadowLayer(scale(10.0f), scale(2.0f), scale(2.0f), ColorPalette.buttonShadow);
         canvas.drawRect(x0, y0, x1, y1, rectanglePainter);
-        drawString(text, x0 + (x1 - x0) / 2, y0 + (y1 - y0) / 2, lightTextPaint);
+        drawString(text, x0 + (x1 - x0) / 2, y0 + (y1 - y0) / 2, mediumLightTextPaint);
     }
 
     @Override
