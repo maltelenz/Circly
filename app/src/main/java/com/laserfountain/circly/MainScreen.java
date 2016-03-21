@@ -452,7 +452,7 @@ public class MainScreen extends Screen {
             game.unlockAchievement(context.getString(R.string.achievement_1k));
             achievement_1k = true;
         }
-        if (clicks > 1000000 && !achievement_100k) {
+        if (clicks > 100000 && !achievement_100k) {
             game.unlockAchievement(context.getString(R.string.achievement_100k));
             achievement_100k = true;
         }
